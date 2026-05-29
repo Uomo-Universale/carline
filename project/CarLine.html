@@ -1,0 +1,491 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>CarLine — Pickup System for Rambam Day School</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,400&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="tokens.css">
+<style>
+  /* deck-stage hides children until upgraded */
+  deck-stage:not(:defined) { visibility: hidden; }
+  body { margin: 0; background: #0B1422; font-family: var(--cl-font-sans); }
+
+  /* Slide canvas */
+  deck-stage section {
+    background: var(--cl-bg);
+    color: var(--cl-ink);
+    overflow: hidden;
+  }
+
+  /* Reusable slide chrome */
+  .slide {
+    width: 1920px; height: 1080px; position: relative;
+    padding: 56px 88px 80px;
+    box-sizing: border-box;
+    display: flex; flex-direction: column;
+  }
+  .slide-header {
+    display: flex; align-items: baseline; justify-content: space-between;
+    padding-bottom: 20px; border-bottom: 1px solid var(--cl-border);
+    margin-bottom: 36px;
+  }
+  .kicker {
+    font: 700 18px/22px var(--cl-font-sans);
+    color: var(--cl-ink-muted);
+    text-transform: uppercase; letter-spacing: 1.4px;
+  }
+  .slide-title {
+    font: var(--cl-t-4xl);
+    font-family: var(--cl-font-display);
+    color: var(--cl-ink);
+    letter-spacing: -1px;
+    margin: 0;
+    font-weight: 500;
+  }
+  .slide-title em { font-style: italic; color: var(--cl-accent-press); font-weight: 500; }
+  .slide-footer {
+    position: absolute; left: 88px; right: 88px; bottom: 30px;
+    display: flex; justify-content: space-between;
+    font: var(--cl-t-sm); color: var(--cl-ink-muted);
+  }
+  .pagenum { font-family: var(--cl-font-mono); font-weight: 600; font-size: 20px; }
+  .brand-mark {
+    display: inline-flex; align-items: center; gap: 8px;
+    font: 700 24px/30px var(--cl-font-sans); color: var(--cl-ink);
+  }
+  .slide-footer .brand-mark, .slide-header .brand-mark { font: 600 20px/24px var(--cl-font-sans); }
+  .slide-footer { font: 500 20px/26px var(--cl-font-sans); color: var(--cl-ink-muted); }
+  .brand-mark .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--cl-accent); }
+
+  /* Cover */
+  .cover {
+    background:
+      radial-gradient(80% 60% at 20% 110%, rgba(232,163,61,0.30) 0%, transparent 60%),
+      radial-gradient(60% 60% at 80% 0%, rgba(31,58,95,0.10) 0%, transparent 60%),
+      linear-gradient(180deg, #FBF5EA 0%, #F5EBD7 100%);
+    align-items: flex-start; justify-content: flex-end;
+  }
+  .cover-title {
+    font-family: var(--cl-font-display);
+    font-size: 220px; line-height: 0.95; letter-spacing: -7px;
+    color: var(--cl-ink); margin: 0;
+    font-weight: 500;
+  }
+  .cover-title em { font-style: italic; color: var(--cl-accent-press); font-weight: 500; }
+  .cover-sub {
+    font: var(--cl-t-3xl); color: var(--cl-ink-soft);
+    margin-top: 18px; max-width: 1100px; font-weight: 400; line-height: 1.25;
+  }
+  .cover-meta {
+    margin-top: 56px;
+    display: flex; gap: 32px; align-items: center;
+    font: 500 24px/32px var(--cl-font-sans); color: var(--cl-ink-soft);
+  }
+  .cover-meta b { color: var(--cl-ink); font-weight: 700; }
+  .cover-illo { position: absolute; right: 72px; top: 96px; width: 720px; height: 480px; }
+
+  /* Generic helpers */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 32px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
+  .stack { display: grid; gap: 16px; }
+  .row { display: flex; gap: 16px; align-items: center; }
+
+  .panel {
+    background: var(--cl-surface); border: 1px solid var(--cl-border);
+    border-radius: var(--cl-r-xl); padding: 28px;
+    box-shadow: var(--cl-shadow-1);
+  }
+  .panel-h {
+    font: var(--cl-t-xs); color: var(--cl-ink-muted);
+    text-transform: uppercase; letter-spacing: 1px; font-weight: 700;
+    margin-bottom: 12px;
+  }
+  .panel-t {
+    font: var(--cl-t-2xl); color: var(--cl-ink);
+    font-family: var(--cl-font-display); font-weight: 500;
+    letter-spacing: -0.4px; margin: 0 0 8px;
+  }
+  .panel-p {
+    font: var(--cl-t-lg); color: var(--cl-ink-soft); line-height: 1.5;
+  }
+
+  /* Swatches */
+  .swatches { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .sw {
+    border-radius: 14px; overflow: hidden;
+    border: 1px solid var(--cl-border);
+    background: var(--cl-surface);
+    display: flex; flex-direction: column;
+  }
+  .sw-color { height: 84px; }
+  .sw-meta { padding: 10px 12px; }
+  .sw-name { font: 600 15px/20px var(--cl-font-sans); color: var(--cl-ink); }
+  .sw-hex  { font: 500 12px/16px var(--cl-font-mono); color: var(--cl-ink-muted); }
+  .sw-use  { font: 500 12px/14px var(--cl-font-sans); color: var(--cl-ink-muted); margin-top: 3px; }
+
+  /* Type spec rows */
+  .type-row {
+    display: grid; grid-template-columns: 220px 1fr 220px;
+    gap: 24px; align-items: baseline;
+    padding: 18px 0; border-bottom: 1px solid var(--cl-border);
+  }
+  .type-row:last-child { border-bottom: none; }
+  .type-label { font: var(--cl-t-sm); color: var(--cl-ink-muted); font-family: var(--cl-font-mono); font-weight: 600; }
+  .type-spec  { font: var(--cl-t-sm); color: var(--cl-ink-muted); font-family: var(--cl-font-mono); font-weight: 500; text-align: right; }
+  .type-sample { color: var(--cl-ink); }
+
+  /* IA */
+  .ia-tree { display: grid; gap: 12px; }
+  .ia-node {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 18px;
+    background: var(--cl-surface); border: 1px solid var(--cl-border);
+    border-radius: 14px; box-shadow: var(--cl-shadow-1);
+  }
+  .ia-child { margin-left: 36px; }
+  .ia-child::before {
+    content: ""; display: inline-block; width: 24px; height: 1px;
+    background: var(--cl-border-strong); margin-right: -4px;
+  }
+  .ia-icon {
+    width: 36px; height: 36px; border-radius: 10px;
+    background: var(--cl-primary-soft);
+    color: var(--cl-primary);
+    display: flex; align-items: center; justify-content: center; flex: none;
+  }
+  .ia-title { font: var(--cl-t-md); font-weight: 650; color: var(--cl-ink); }
+  .ia-sub   { font: var(--cl-t-xs); color: var(--cl-ink-muted); margin-top: 2px; }
+  .ia-meta  { font: var(--cl-t-xs); color: var(--cl-ink-muted); font-family: var(--cl-font-mono); }
+  .ia-sec-title { font: var(--cl-t-xl); font-family: var(--cl-font-display); color: var(--cl-ink); margin: 0 0 12px; }
+  .ia-sec-sub   { font: var(--cl-t-sm); color: var(--cl-ink-muted); margin-bottom: 18px; }
+
+  /* Stage / device wrappers */
+  .stage { display: flex; align-items: center; justify-content: center; }
+  .device-row { display: flex; gap: 36px; align-items: flex-start; justify-content: center; }
+  .device-cap {
+    text-align: center; font: var(--cl-t-sm); color: var(--cl-ink-muted);
+    margin-top: 14px;
+  }
+  .device-cap b { color: var(--cl-ink); font-weight: 700; }
+
+  /* Annotation pills used next to mockups */
+  .anno {
+    background: var(--cl-surface); border: 1px solid var(--cl-border);
+    border-radius: 14px; padding: 16px 18px;
+    box-shadow: var(--cl-shadow-1);
+    max-width: 360px;
+  }
+  .anno-num {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px; border-radius: 999px;
+    background: var(--cl-accent); color: #3A2206;
+    font: var(--cl-t-sm); font-weight: 800; flex: none;
+  }
+  .anno-h { font: var(--cl-t-md); font-weight: 700; color: var(--cl-ink); margin-bottom: 4px; }
+  .anno-p { font: var(--cl-t-sm); color: var(--cl-ink-soft); line-height: 1.5; }
+
+  /* Principles */
+  .principle {
+    background: var(--cl-surface); border: 1px solid var(--cl-border);
+    border-radius: var(--cl-r-2xl);
+    padding: 36px;
+    display: flex; flex-direction: column; gap: 18px;
+    min-height: 320px;
+  }
+  .principle .pri-no {
+    font: var(--cl-t-sm); font-family: var(--cl-font-mono); font-weight: 600;
+    color: var(--cl-accent-press);
+    letter-spacing: 1px;
+  }
+  .principle h3 {
+    font: var(--cl-t-2xl); font-family: var(--cl-font-display); font-weight: 500;
+    color: var(--cl-ink); margin: 0; letter-spacing: -0.4px;
+  }
+  .principle p {
+    font: 500 24px/32px var(--cl-font-sans); color: var(--cl-ink-soft); margin: 0;
+  }
+  .principle .pri-tag {
+    margin-top: auto;
+    font: var(--cl-t-sm); color: var(--cl-ink-muted);
+    font-family: var(--cl-font-mono);
+  }
+
+  /* Pickup type matrix */
+  .ptm { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+  .ptm-cell {
+    background: var(--cl-surface); border: 1px solid var(--cl-border);
+    border-radius: 18px; padding: 24px; min-height: 280px;
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  .ptm-ic {
+    width: 56px; height: 56px; border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .ptm-t { font: var(--cl-t-xl); color: var(--cl-ink); font-weight: 700; }
+  .ptm-p { font: var(--cl-t-sm); color: var(--cl-ink-soft); line-height: 1.45; }
+  .ptm-steps {
+    margin-top: auto;
+    display: grid; gap: 4px;
+    font: var(--cl-t-xs); font-family: var(--cl-font-mono);
+    color: var(--cl-ink-muted);
+  }
+
+  /* State machine */
+  .sm-track { position: relative; padding: 80px 0; }
+  .sm-line { position: absolute; left: 0; right: 0; top: 200px; height: 2px; background: var(--cl-border-strong); }
+  .sm-stops { display: grid; grid-template-columns: repeat(4, 1fr); position: relative; z-index: 1; }
+  .sm-stop { text-align: center; }
+  .sm-dot { width: 56px; height: 56px; border-radius: 50%; margin: 0 auto; background: var(--cl-surface); border: 2px solid var(--cl-border-strong); display: flex; align-items: center; justify-content: center; color: var(--cl-ink); font: var(--cl-t-xl); font-weight: 700; }
+  .sm-stop.parent .sm-dot { background: var(--cl-accent); color: #3A2206; border-color: var(--cl-accent); }
+  .sm-stop.staff  .sm-dot { background: var(--cl-primary); color: white; border-color: var(--cl-primary); }
+  .sm-stop h4 { font: var(--cl-t-lg); font-weight: 700; margin: 14px 0 4px; }
+  .sm-stop p  { font: var(--cl-t-sm); color: var(--cl-ink-muted); margin: 0; max-width: 240px; margin-left: auto; margin-right: auto; line-height: 1.4; }
+
+  /* A11y diff */
+  .a11y-row {
+    display: grid; grid-template-columns: 60px 220px 1fr 180px;
+    gap: 18px; align-items: center;
+    padding: 14px 18px; background: var(--cl-surface);
+    border: 1px solid var(--cl-border); border-radius: 12px;
+  }
+  .a11y-swatch { width: 48px; height: 48px; border-radius: 10px; }
+  .ratio { font: var(--cl-t-lg); font-family: var(--cl-font-mono); font-weight: 700; color: var(--cl-success); text-align: right; }
+  .ratio.warn { color: var(--cl-warning); }
+
+  /* Steps / list */
+  .next-list { display: grid; gap: 12px; }
+  .next-item {
+    display: grid; grid-template-columns: 32px 1fr 200px; gap: 16px; align-items: center;
+    padding: 16px 18px; background: var(--cl-surface);
+    border: 1px solid var(--cl-border); border-radius: 14px;
+  }
+  .next-num { font: var(--cl-t-lg); font-family: var(--cl-font-mono); font-weight: 700; color: var(--cl-accent-press); }
+  .next-title { font: var(--cl-t-md); font-weight: 650; color: var(--cl-ink); }
+  .next-sub { font: var(--cl-t-sm); color: var(--cl-ink-muted); margin-top: 2px; }
+  .pill {
+    font: var(--cl-t-xs); font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px;
+    padding: 4px 10px; border-radius: 999px; justify-self: end;
+  }
+  .pill.now  { background: var(--cl-success-soft); color: var(--cl-success); }
+  .pill.next { background: var(--cl-primary-soft); color: var(--cl-primary); }
+  .pill.later { background: var(--cl-bg-deep); color: var(--cl-ink-muted); }
+
+  /* Filter showcase */
+  .filter-zoom {
+    background: var(--cl-surface); border: 1px solid var(--cl-border);
+    border-radius: 20px; padding: 32px; box-shadow: var(--cl-shadow-2);
+  }
+</style>
+</head>
+<body>
+
+<deck-stage width="1920" height="1080">
+
+  <!-- =============================================================
+       SLIDE 1 — COVER
+       ============================================================= -->
+  <section data-label="01 Cover">
+    <div class="slide cover">
+      <!-- Decorative car-line illustration top-right -->
+      <svg class="cover-illo" viewBox="0 0 720 480" aria-hidden="true">
+        <!-- school building -->
+        <g opacity="0.9">
+          <rect x="510" y="150" width="180" height="160" rx="6" fill="#1F3A5F"/>
+          <polygon points="500,150 600,90 700,150" fill="#15233A"/>
+          <rect x="540" y="200" width="30" height="40" fill="#FBE9C7"/>
+          <rect x="585" y="200" width="30" height="40" fill="#FBE9C7"/>
+          <rect x="630" y="200" width="30" height="40" fill="#FBE9C7"/>
+          <rect x="585" y="260" width="30" height="50" fill="#E8A33D"/>
+          <rect x="495" y="310" width="220" height="6" fill="#15233A"/>
+        </g>
+        <!-- pickup loop curve -->
+        <path d="M 40 360 Q 200 320, 320 360 T 520 380" stroke="#D8C9A8" stroke-width="2" fill="none" stroke-dasharray="6 8"/>
+        <!-- car 1 (front, accent) -->
+        <g transform="translate(380,330)">
+          <rect x="-5" y="42" width="120" height="3" fill="rgba(21,35,58,0.15)"/>
+          <path d="M0 32 L14 8 Q18 2 26 2 L82 2 Q90 2 94 8 L108 32 L108 38 Q108 42 104 42 L4 42 Q0 42 0 38 Z" fill="#E8A33D" stroke="#9E6712" stroke-width="1"/>
+          <path d="M20 10 Q22 6 28 6 L58 6 L58 26 L18 26 Z" fill="#9FCBD9" opacity="0.85"/>
+          <path d="M60 6 L82 6 Q88 6 90 10 L96 26 L60 26 Z" fill="#9FCBD9" opacity="0.85"/>
+          <circle cx="22" cy="40" r="6" fill="#15233A"/><circle cx="22" cy="40" r="2.5" fill="#3B4A66"/>
+          <circle cx="88" cy="40" r="6" fill="#15233A"/><circle cx="88" cy="40" r="2.5" fill="#3B4A66"/>
+        </g>
+        <!-- car 2 -->
+        <g transform="translate(230,348)" opacity="0.85">
+          <path d="M0 32 L14 8 Q18 2 26 2 L82 2 Q90 2 94 8 L108 32 L108 38 Q108 42 104 42 L4 42 Q0 42 0 38 Z" fill="#1F3A5F" stroke="#0F2540" stroke-width="1"/>
+          <path d="M20 10 Q22 6 28 6 L58 6 L58 26 L18 26 Z" fill="#9FCBD9" opacity="0.8"/>
+          <path d="M60 6 L82 6 Q88 6 90 10 L96 26 L60 26 Z" fill="#9FCBD9" opacity="0.8"/>
+          <circle cx="22" cy="40" r="6" fill="#0F1E32"/>
+          <circle cx="88" cy="40" r="6" fill="#0F1E32"/>
+        </g>
+        <!-- car 3 -->
+        <g transform="translate(90,372)" opacity="0.7">
+          <path d="M0 32 L14 8 Q18 2 26 2 L82 2 Q90 2 94 8 L108 32 L108 38 Q108 42 104 42 L4 42 Q0 42 0 38 Z" fill="#A8392E" stroke="#6F2418" stroke-width="1"/>
+          <path d="M20 10 Q22 6 28 6 L58 6 L58 26 L18 26 Z" fill="#9FCBD9" opacity="0.75"/>
+          <path d="M60 6 L82 6 Q88 6 90 10 L96 26 L60 26 Z" fill="#9FCBD9" opacity="0.75"/>
+          <circle cx="22" cy="40" r="6" fill="#0F1E32"/>
+          <circle cx="88" cy="40" r="6" fill="#0F1E32"/>
+        </g>
+        <!-- kid + teacher silhouettes at curb -->
+        <g transform="translate(560,260)">
+          <circle cx="0" cy="-8" r="8" fill="#3B4A66"/>
+          <path d="M-10 30 C -10 14, -8 8, 0 8 C 8 8, 10 14, 10 30 Z" fill="#3B4A66"/>
+          <circle cx="22" cy="-4" r="6" fill="#7A4A0E"/>
+          <path d="M14 30 C 14 16, 18 14, 22 14 C 26 14, 30 16, 30 30 Z" fill="#7A4A0E"/>
+        </g>
+      </svg>
+
+      <div style="margin-top: auto;">
+        <div class="brand-mark" style="margin-bottom: 56px;">
+          <span class="dot"></span> CarLine v0.1 · Concept design
+        </div>
+        <h1 class="cover-title">Pickup,<br/><em>without the wait.</em></h1>
+        <p class="cover-sub">A parent + staff dismissal system, designed for <b style="color:var(--cl-ink);font-weight:600;">Rambam Day School</b>.</p>
+        <div class="cover-meta">
+          <span><b>Parent app</b> · iOS (Android-portable)</span>
+          <span>·</span>
+          <span><b>Staff dashboard</b> · iPad landscape + portrait</span>
+          <span>·</span>
+          <span><b>21 slides</b></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =============================================================
+       SLIDE 2 — DESIGN PRINCIPLES
+       ============================================================= -->
+  <section data-label="02 Principles">
+    <div class="slide">
+      <header class="slide-header">
+        <div class="kicker">Principles · 02 / 21</div>
+        <span class="brand-mark"><span class="dot"></span>CarLine</span>
+      </header>
+      <h2 class="slide-title" style="margin-bottom: 24px;">Four things this product is, before it is anything else.</h2>
+      <p style="font: 500 24px/34px var(--cl-font-sans); color: var(--cl-ink-soft); max-width: 1100px; margin: 0 0 56px;">Carline is a piece of furniture in a parent's afternoon. It should feel boring, in the way a well-engineered traffic light is boring. <em style="color: var(--cl-ink); font-family: var(--cl-font-display);">Chick-fil-A simple.</em></p>
+      <div class="grid-4" style="flex: 1;">
+        <div class="principle">
+          <span class="pri-no">01</span>
+          <h3>One tap, in a moving car.</h3>
+          <p>The primary action is the size of a thumb glance. A parent should be able to tap it without looking, while easing forward in line.</p>
+          <span class="pri-tag">Hit target ≥ 56pt · centered for one-handed reach</span>
+        </div>
+        <div class="principle">
+          <span class="pri-no">02</span>
+          <h3>Calm before urgent.</h3>
+          <p>The UI is quiet — cream, navy, ink. Color is reserved for status. When something changes, the screen <em style="font-family: var(--cl-font-display);">tells</em> you, instead of shouting at you.</p>
+          <span class="pri-tag">≤ 2 accent colors visible at a time</span>
+        </div>
+        <div class="principle">
+          <span class="pri-no">03</span>
+          <h3>Glanceable in the sun.</h3>
+          <p>Staff use the tablet outdoors on a folding table. Type is large, contrast is high, status is encoded in both color <em style="font-family: var(--cl-font-display);">and</em> shape so it survives squinting.</p>
+          <span class="pri-tag">WCAG AAA on critical surfaces · 18px body min</span>
+        </div>
+        <div class="principle">
+          <span class="pri-no">04</span>
+          <h3>Boring, on purpose.</h3>
+          <p>Predictable patterns over clever ones. Same status chip everywhere. Same primary button. Same way to advance a queue. Trust comes from sameness.</p>
+          <span class="pri-tag">No emoji · no novelty · few illustrations</span>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span class="brand-mark"><span class="dot"></span>CarLine for Rambam Day School</span>
+        <span class="pagenum">02 / 21</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- =============================================================
+       SLIDE 3 — IA / SITEMAP
+       ============================================================= -->
+  <section data-label="03 IA">
+    <div class="slide">
+      <header class="slide-header">
+        <div class="kicker">Information architecture · 03 / 21</div>
+        <span class="brand-mark"><span class="dot"></span>CarLine</span>
+      </header>
+      <h2 class="slide-title" style="margin-bottom: 56px;">Two apps, one shared queue.</h2>
+      <div class="grid-2" style="flex: 1; gap: 80px;">
+        <!-- Parent IA -->
+        <div>
+          <h3 class="ia-sec-title">Parent app — iOS</h3>
+          <p class="ia-sec-sub">Five tabs. One screen does the heavy lifting; the rest are setup &amp; reference.</p>
+          <div class="ia-tree">
+            <div class="ia-node"><span class="ia-icon" style="background:#FBE9C7;color:#7A4A0E;">▼</span><div><div class="ia-title">Onboarding / SSO</div><div class="ia-sub">First-run only · school account or phone</div></div></div>
+            <div class="ia-node"><span class="ia-icon">⌂</span><div style="flex:1;"><div class="ia-title">Home</div><div class="ia-sub">Today's dismissal status · big "I'm here" · child cards</div></div><span class="ia-meta">default tab</span></div>
+            <div class="ia-node ia-child"><span class="ia-icon" style="background:var(--cl-accent-soft);color:var(--cl-accent-press);">→</span><div style="flex:1;"><div class="ia-title">Pickup request</div><div class="ia-sub">Carline · Walk-in · Early · Message office</div></div></div>
+            <div class="ia-node ia-child"><span class="ia-icon" style="background:var(--cl-accent-soft);color:var(--cl-accent-press);">●</span><div style="flex:1;"><div class="ia-title">Live status</div><div class="ia-sub">Requested → Arrived → Called → Released</div></div></div>
+            <div class="ia-node"><span class="ia-icon">🚗</span><div><div class="ia-title">Vehicle</div><div class="ia-sub">Make · color · plate (shown to staff)</div></div></div>
+            <div class="ia-node"><span class="ia-icon">👥</span><div><div class="ia-title">Authorized people</div><div class="ia-sub">Read-only · changes go through office</div></div></div>
+            <div class="ia-node"><span class="ia-icon">⚙</span><div><div class="ia-title">Settings</div><div class="ia-sub">Notifications · accessibility · school</div></div></div>
+          </div>
+        </div>
+        <!-- Staff IA -->
+        <div>
+          <h3 class="ia-sec-title">Staff dashboard — iPad</h3>
+          <p class="ia-sec-sub">A single live screen for dismissal time. Approvals run alongside, on a different scale.</p>
+          <div class="ia-tree">
+            <div class="ia-node"><span class="ia-icon">▦</span><div style="flex:1;"><div class="ia-title">Dismissal queue</div><div class="ia-sub">Live list of arrived families, sorted by arrival</div></div><span class="ia-meta">primary screen</span></div>
+            <div class="ia-node ia-child"><span class="ia-icon" style="background:var(--cl-accent-soft);color:var(--cl-accent-press);">▤</span><div><div class="ia-title">List / Board toggle</div><div class="ia-sub">Dense rows for office · 3-column board for curb</div></div></div>
+            <div class="ia-node ia-child"><span class="ia-icon" style="background:var(--cl-accent-soft);color:var(--cl-accent-press);">⌕</span><div><div class="ia-title">Search &amp; filters</div><div class="ia-sub">Grade · homeroom · teacher · free text</div></div></div>
+            <div class="ia-node ia-child"><span class="ia-icon" style="background:var(--cl-accent-soft);color:var(--cl-accent-press);">↻</span><div><div class="ia-title">Status advance</div><div class="ia-sub">Arrived → Called → Released (big buttons)</div></div></div>
+            <div class="ia-node"><span class="ia-icon">⏰</span><div><div class="ia-title">Early pickup approvals</div><div class="ia-sub">Office reviews · notifies teacher</div></div></div>
+            <div class="ia-node"><span class="ia-icon">💬</span><div><div class="ia-title">Parent messages</div><div class="ia-sub">Inbox of "not picking up today" notes</div></div></div>
+            <div class="ia-node"><span class="ia-icon">📊</span><div><div class="ia-title">Reports</div><div class="ia-sub">Weekly dismissal time · late arrivals</div></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span class="brand-mark"><span class="dot"></span>CarLine for Rambam Day School</span>
+        <span class="pagenum">03 / 21</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slides 4–21 continue in slides-part2.html via injection... -->
+  <!-- The remaining slides are appended by a small inline script below. -->
+
+</deck-stage>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<!-- Inject remaining slides BEFORE deck-stage runs -->
+<script src="slides-part2.js"></script>
+
+<script src="deck-stage.js"></script>
+
+<!-- App scripts (order matters: shared → frames → screens → tweaks → mount) -->
+<script type="text/babel" src="app-shared.jsx"></script>
+<script type="text/babel" src="app-frames.jsx"></script>
+<script type="text/babel" src="app-parent.jsx"></script>
+<script type="text/babel" src="app-staff.jsx"></script>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel" src="app-tweaks.jsx"></script>
+<script type="text/babel" src="app-mount.jsx"></script>
+
+<template id="__bundler_thumbnail">
+  <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+    <rect width="200" height="200" fill="#FBF5EA"/>
+    <g transform="translate(40,72)">
+      <rect x="0" y="40" width="120" height="3" fill="rgba(21,35,58,0.15)"/>
+      <path d="M0 32 L14 8 Q18 2 26 2 L82 2 Q90 2 94 8 L108 32 L108 38 Q108 42 104 42 L4 42 Q0 42 0 38 Z" fill="#E8A33D" stroke="#9E6712" stroke-width="1.5"/>
+      <path d="M20 10 Q22 6 28 6 L58 6 L58 26 L18 26 Z" fill="#9FCBD9"/>
+      <path d="M60 6 L82 6 Q88 6 90 10 L96 26 L60 26 Z" fill="#9FCBD9"/>
+      <circle cx="22" cy="40" r="6" fill="#15233A"/>
+      <circle cx="88" cy="40" r="6" fill="#15233A"/>
+    </g>
+    <text x="100" y="160" font-family="Newsreader, Georgia, serif" font-size="24" font-weight="600" text-anchor="middle" fill="#15233A">CarLine</text>
+  </svg>
+</template>
+
+</body>
+</html>

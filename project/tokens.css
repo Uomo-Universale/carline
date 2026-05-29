@@ -1,0 +1,109 @@
+/* ==========================================================================
+   CarLine — design tokens
+   Warm school direction: cream surfaces · deep navy ink · warm amber signal
+   ========================================================================== */
+
+:root {
+  /* ---- Palette: neutrals ---- */
+  --cl-bg:              #FBF5EA;   /* page */
+  --cl-bg-deep:         #F5EBD7;   /* recessed */
+  --cl-surface:         #FFFFFF;   /* cards */
+  --cl-surface-2:       #FFFCF5;   /* subtle elevated */
+  --cl-border:          #ECE0C8;   /* default hairline */
+  --cl-border-strong:   #D8C9A8;   /* heavier divider */
+  --cl-ink:             #15233A;   /* primary text, deep navy */
+  --cl-ink-soft:        #3B4A66;   /* secondary text */
+  --cl-ink-muted:       #7A8699;   /* tertiary/meta */
+  --cl-ink-inverse:     #FFFCF5;
+
+  /* ---- Palette: brand & signal ---- */
+  --cl-primary:         #1F3A5F;   /* deep navy — primary CTAs */
+  --cl-primary-press:   #15263F;
+  --cl-primary-soft:    #E5EAF1;   /* primary-tinted surface */
+
+  --cl-accent:          #E8A33D;   /* warm amber — the "I'm here" signal */
+  --cl-accent-press:    #C9871F;
+  --cl-accent-soft:     #FBE9C7;
+
+  --cl-success:         #2F6B5A;   /* released */
+  --cl-success-soft:    #DCEBE3;
+  --cl-warning:         #C97A1F;   /* called */
+  --cl-warning-soft:    #F8E0BF;
+  --cl-danger:          #B83A2E;   /* denied / error */
+  --cl-danger-soft:     #F5D9D2;
+  --cl-info:            #2A6FA3;
+  --cl-info-soft:       #DCEAF4;
+
+  /* ---- Status colors (semantic, used by chips and dots) ---- */
+  --cl-st-requested-fg: #3B4A66;
+  --cl-st-requested-bg: #E7E2D4;
+  --cl-st-arrived-fg:   #7A4A0E;
+  --cl-st-arrived-bg:   #FBE9C7;
+  --cl-st-called-fg:    #FFFCF5;
+  --cl-st-called-bg:    #C97A1F;
+  --cl-st-released-fg:  #FFFCF5;
+  --cl-st-released-bg:  #2F6B5A;
+
+  /* ---- Typography ---- */
+  --cl-font-sans:    "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --cl-font-display: "Newsreader", "Source Serif 4", "Georgia", serif;
+  --cl-font-mono:    "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  /* Type scale — line-height baked into the var; use as `font: var(--cl-t-lg)` */
+  --cl-t-xs:    500 11px/14px var(--cl-font-sans);
+  --cl-t-sm:    500 13px/18px var(--cl-font-sans);
+  --cl-t-base:  450 15px/22px var(--cl-font-sans);
+  --cl-t-md:    500 16px/22px var(--cl-font-sans);
+  --cl-t-lg:    550 18px/24px var(--cl-font-sans);
+  --cl-t-xl:    600 22px/28px var(--cl-font-sans);
+  --cl-t-2xl:   650 28px/34px var(--cl-font-sans);
+  --cl-t-3xl:   700 36px/42px var(--cl-font-sans);
+  --cl-t-4xl:   700 48px/52px var(--cl-font-sans);
+
+  /* ---- Spacing (4-based) ---- */
+  --cl-s-1:  4px;
+  --cl-s-2:  8px;
+  --cl-s-3: 12px;
+  --cl-s-4: 16px;
+  --cl-s-5: 20px;
+  --cl-s-6: 24px;
+  --cl-s-8: 32px;
+  --cl-s-10: 40px;
+  --cl-s-12: 48px;
+  --cl-s-16: 64px;
+  --cl-s-20: 80px;
+
+  /* ---- Radii ---- */
+  --cl-r-sm:  6px;
+  --cl-r-md: 10px;
+  --cl-r-lg: 14px;
+  --cl-r-xl: 20px;
+  --cl-r-2xl: 28px;
+  --cl-r-pill: 999px;
+
+  /* ---- Shadows ---- */
+  --cl-shadow-1: 0 1px 2px rgba(21,35,58,0.06), 0 1px 0 rgba(21,35,58,0.04);
+  --cl-shadow-2: 0 4px 14px -4px rgba(21,35,58,0.12), 0 2px 4px rgba(21,35,58,0.05);
+  --cl-shadow-3: 0 20px 40px -16px rgba(21,35,58,0.18), 0 4px 12px -4px rgba(21,35,58,0.08);
+  --cl-shadow-press: inset 0 2px 0 rgba(0,0,0,0.10);
+  --cl-ring: 0 0 0 3px rgba(232,163,61,0.35);
+
+  /* ---- Motion ---- */
+  --cl-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --cl-fast: 140ms;
+  --cl-med:  220ms;
+  --cl-slow: 360ms;
+
+  /* ---- Tap targets ---- */
+  --cl-hit-comfort: 56px;   /* parent in-car primary */
+  --cl-hit-default: 44px;   /* iOS HIG min */
+  --cl-hit-staff:   72px;   /* staff outdoors tablet */
+}
+
+/* Compact density override (staff queue) */
+[data-density="compact"] {
+  --cl-hit-staff: 56px;
+}
+
+/* Print page background */
+html, body { background: var(--cl-bg); color: var(--cl-ink); }
