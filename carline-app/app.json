@@ -1,0 +1,49 @@
+{
+  "expo": {
+    "name": "CarLine",
+    "slug": "carline-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "scheme": "carline",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.rambam.carline",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Used to scan license plates (future feature)."
+      }
+    },
+    "android": {
+      "package": "com.rambam.carline",
+      "adaptiveIcon": {
+        "backgroundColor": "#E6F4FE",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/notification-icon.png",
+          "color": "#E8A33D",
+          "sounds": [],
+          "androidMode": "default"
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "YOUR_EAS_PROJECT_ID"
+      },
+      "supabaseUrl": "https://YOUR_PROJECT_REF.supabase.co",
+      "supabaseAnonKey": "YOUR_ANON_KEY_HERE"
+    }
+  }
+}
