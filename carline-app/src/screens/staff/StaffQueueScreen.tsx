@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   View, Text, TouchableOpacity, FlatList, TextInput,
-  StyleSheet, SafeAreaView, StatusBar,
+  StyleSheet, SafeAreaView, StatusBar, Modal, Pressable,
 } from 'react-native';
 import { LicensePlate } from '../../components/ui/LicensePlate';
 import { StatusChip } from '../../components/ui/StatusChip';
 import { dataSource } from '../../data/provider';
 import { useStore } from '../../store';
-import type { QueueEntry, Student, Guardian, Vehicle } from '../../models';
+import type { QueueEntry, Student, Guardian, Vehicle, PickupStatus } from '../../models';
 
 type QueueRow = QueueEntry & {
   student?: Student | null;
@@ -33,11 +33,21 @@ const STATUS_DOT: Record<string, string> = {
   released:  '#2F6B5A',
 };
 
+const STATUS_LABELS: Record<PickupStatus, string> = {
+  requested: 'Requested',
+  arrived:   'Arrived',
+  called:    'Called out',
+  released:  'Released',
+};
+
+const ALL_STATUSES: PickupStatus[] = ['requested', 'arrived', 'called', 'released'];
+
 export function StaffQueueScreen() {
-  const { queue, advanceQueueEntry, subscribeToQueue } = useStore();
+  const { queue, advanceQueueEntry, setQueueEntryStatus, subscribeToQueue } = useStore();
   const [rows, setRows] = useState<QueueRow[]>([]);
   const [search, setSearch] = useState('');
   const [gradeFilter, setGradeFilter] = useState('All');
+  const [editingRow, setEditingRow] = useState<QueueRow | null>(null);
 
   useEffect(() => {
     const unsub = subscribeToQueue();
@@ -89,7 +99,18 @@ export function StaffQueueScreen() {
     await advanceQueueEntry(requestId);
   }, [advanceQueueEntry]);
 
+  const handleSetStatus = useCallback(async (status: PickupStatus) => {
+    if (!editingRow) return;
+    await setQueueEntryStatus(editingRow.requestId, status);
+    setEditingRow(null);
+  }, [editingRow, setQueueEntryStatus]);
+
   const renderRow = ({ item: r }: { item: QueueRow }) => (
+    <TouchableOpacity
+      activeOpacity={0.85}
+      onLongPress={() => setEditingRow(r)}
+      delayLongPress={400}
+    >
     <View style={[styles.row, { backgroundColor: STATUS_COLORS[r.status] ?? '#FBF5EA' }]}>
       <View style={[styles.statusDot, { backgroundColor: STATUS_DOT[r.status] ?? '#7A8699' }]} />
       <View style={styles.rowMain}>
@@ -140,6 +161,7 @@ export function StaffQueueScreen() {
         )}
       </View>
     </View>
+    </TouchableOpacity>
   );
 
   return (
@@ -207,6 +229,49 @@ export function StaffQueueScreen() {
           ) : null
         }
       />
+
+      <Modal
+        visible={editingRow !== null}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setEditingRow(null)}
+      >
+        <Pressable style={styles.modalOverlay} onPress={() => setEditingRow(null)}>
+          <Pressable style={styles.modalCard} onPress={() => {}}>
+            <Text style={styles.modalTitle}>Change status</Text>
+            {editingRow && (
+              <Text style={styles.modalStudent}>
+                {editingRow.student
+                  ? `${editingRow.student.firstName} ${editingRow.student.lastName}`
+                  : editingRow.studentId}
+              </Text>
+            )}
+            <View style={styles.modalDivider} />
+            {ALL_STATUSES.map(s => (
+              <TouchableOpacity
+                key={s}
+                style={[
+                  styles.modalOption,
+                  editingRow?.status === s && styles.modalOptionActive,
+                ]}
+                onPress={() => handleSetStatus(s)}
+              >
+                <View style={[styles.modalDot, { backgroundColor: STATUS_DOT[s] }]} />
+                <Text style={[
+                  styles.modalOptionText,
+                  editingRow?.status === s && styles.modalOptionTextActive,
+                ]}>
+                  {STATUS_LABELS[s]}
+                </Text>
+                {editingRow?.status === s && <Text style={styles.modalCheck}>✓</Text>}
+              </TouchableOpacity>
+            ))}
+            <TouchableOpacity style={styles.modalCancel} onPress={() => setEditingRow(null)}>
+              <Text style={styles.modalCancelText}>Cancel</Text>
+            </TouchableOpacity>
+          </Pressable>
+        </Pressable>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -286,4 +351,31 @@ const styles = StyleSheet.create({
   releasedRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 6, borderBottomWidth: 1, borderBottomColor: '#ECE0C8' },
   releasedName: { fontSize: 14, color: '#7A8699' },
   releasedTime: { fontSize: 14, color: '#7A8699' },
+
+  modalOverlay: {
+    flex: 1, backgroundColor: 'rgba(0,0,0,0.45)',
+    justifyContent: 'center', alignItems: 'center',
+  },
+  modalCard: {
+    backgroundColor: '#FFFFFF', borderRadius: 20,
+    padding: 20, width: 300, gap: 4,
+    shadowColor: '#000', shadowOpacity: 0.2, shadowRadius: 16, elevation: 8,
+  },
+  modalTitle: { fontSize: 13, fontWeight: '700', color: '#7A8699', textTransform: 'uppercase', letterSpacing: 0.5 },
+  modalStudent: { fontSize: 18, fontWeight: '700', color: '#15233A', marginTop: 2 },
+  modalDivider: { height: 1, backgroundColor: '#ECE0C8', marginVertical: 12 },
+  modalOption: {
+    flexDirection: 'row', alignItems: 'center', gap: 12,
+    paddingVertical: 12, paddingHorizontal: 10, borderRadius: 10,
+  },
+  modalOptionActive: { backgroundColor: '#F0F4FA' },
+  modalDot: { width: 10, height: 10, borderRadius: 5 },
+  modalOptionText: { flex: 1, fontSize: 16, color: '#3B4A66', fontWeight: '500' },
+  modalOptionTextActive: { fontWeight: '700', color: '#15233A' },
+  modalCheck: { fontSize: 16, color: '#2F6B5A', fontWeight: '700' },
+  modalCancel: {
+    marginTop: 10, paddingVertical: 12, alignItems: 'center',
+    borderTopWidth: 1, borderTopColor: '#ECE0C8',
+  },
+  modalCancelText: { fontSize: 15, fontWeight: '600', color: '#7A8699' },
 });

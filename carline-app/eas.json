@@ -1,0 +1,18 @@
+{
+  "cli": {
+    "version": ">= 12.0.0"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal"
+    },
+    "preview": {
+      "distribution": "internal"
+    },
+    "production": {}
+  },
+  "update": {
+    "url": "https://u.expo.dev/ff16359a-68f7-44c6-a360-4fbfd77c8850"
+  }
+}

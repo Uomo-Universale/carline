@@ -213,6 +213,20 @@ export class MockDataSource implements DataSource {
     return req ?? { id: requestId, guardianId: '', studentIds: [], type: 'carline', status: newEntry?.status ?? 'released', requestedAt: '' };
   }
 
+  async setRequestStatus(requestId: string, status: PickupStatus): Promise<PickupRequest> {
+    _queueEntries = _queueEntries.map(e =>
+      e.requestId === requestId ? { ...e, status, queuePosition: status === 'released' ? 0 : e.queuePosition } : e
+    );
+    notifyQueueListeners();
+    const newEntry = _queueEntries.find(e => e.requestId === requestId);
+    if (newEntry) {
+      const listeners = _statusListeners.get(requestId);
+      if (listeners) listeners.forEach(fn => fn(newEntry.status));
+    }
+    const req = _activeRequests.find(r => r.id === requestId);
+    return req ?? { id: requestId, guardianId: '', studentIds: [], type: 'carline', status, requestedAt: '' };
+  }
+
   async getEarlyPickupApprovals() {
     return [...EARLY_PICKUP_APPROVALS];
   }

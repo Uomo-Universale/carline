@@ -40,7 +40,7 @@
     ],
     "extra": {
       "eas": {
-        "projectId": "YOUR_EAS_PROJECT_ID"
+        "projectId": "ff16359a-68f7-44c6-a360-4fbfd77c8850"
       },
       "supabaseUrl": "https://YOUR_PROJECT_REF.supabase.co",
       "supabaseAnonKey": "YOUR_ANON_KEY_HERE"
