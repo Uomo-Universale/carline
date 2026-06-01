@@ -101,7 +101,20 @@ export function LiveStatusScreen() {
         {status === 'released' ? (
           <Button variant="primary" size="lg" block onPress={() => navigation.goBack()}>Done</Button>
         ) : (
-          <Button variant="secondary" size="lg" block>Message the office</Button>
+          <>
+            <Button variant="secondary" size="lg" block>Message the office</Button>
+            {(status === 'requested' || status === 'arrived') && (
+              <TouchableOpacity
+                style={styles.cancelBtn}
+                onPress={async () => {
+                  if (requestId) await dataSource.cancelPickupRequest(requestId);
+                  navigation.goBack();
+                }}
+              >
+                <Text style={styles.cancelText}>Cancel pickup</Text>
+              </TouchableOpacity>
+            )}
+          </>
         )}
       </View>
     </SafeAreaView>
@@ -140,5 +153,7 @@ const styles = StyleSheet.create({
   body: { fontSize: 16, color: '#3B4A66', marginTop: 8, textAlign: 'center', lineHeight: 22, paddingHorizontal: 12 },
 
   track: { paddingHorizontal: 24, flex: 1 },
-  footer: { padding: 20, paddingBottom: 32 },
+  footer: { padding: 20, paddingBottom: 32, gap: 8 },
+  cancelBtn: { alignItems: 'center', paddingVertical: 12 },
+  cancelText: { fontSize: 15, fontWeight: '600', color: '#A04040' },
 });

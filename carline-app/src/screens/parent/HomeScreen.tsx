@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet,
-  SafeAreaView, StatusBar, Animated,
+  SafeAreaView, StatusBar, Animated, Modal, Pressable,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { KidPortrait } from '../../components/ui/KidPortrait';
@@ -21,12 +21,17 @@ export function HomeScreen() {
   const [students, setStudents] = useState<Student[]>([]);
   const [activeRequests, setActiveRequests] = useState<PickupRequest[]>([]);
   const [loading, setLoading] = useState(false);
+  const [showPickerModal, setShowPickerModal] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const { queue } = useStore();
 
   useEffect(() => {
     dataSource.getCurrentGuardian().then(g => {
       setGuardian(g);
-      dataSource.getStudentsForGuardian(g.id).then(setStudents);
+      dataSource.getStudentsForGuardian(g.id).then(s => {
+        setStudents(s);
+        setSelectedIds(s.map(x => x.id));
+      });
       dataSource.getActiveRequestsForGuardian(g.id).then(setActiveRequests);
     });
   }, []);
@@ -40,22 +45,38 @@ export function HomeScreen() {
 
   const anyActive = students.some(s => getStatusForStudent(s.id) !== 'none');
 
-  const handleImHere = async () => {
-    if (!guardian || students.length === 0) return;
+  const toggleStudent = (id: string) => {
+    setSelectedIds(prev =>
+      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+    );
+  };
+
+  const submitRequest = async (studentIds: string[]) => {
+    if (!guardian || studentIds.length === 0) return;
     setLoading(true);
+    setShowPickerModal(false);
     try {
       const vehicles = await dataSource.getVehiclesForGuardian(guardian.id);
       const vehicle = vehicles.find(v => v.isActive) ?? vehicles[0];
       const req = await dataSource.createPickupRequest({
         guardianId: guardian.id,
-        studentIds: students.map(s => s.id),
+        studentIds,
         vehicleId: vehicle?.id,
         type: 'carline',
       });
       setActiveRequests(prev => [...prev, req]);
-      navigation.navigate('LiveStatus', { requestId: req.id, studentId: students[0].id });
+      navigation.navigate('LiveStatus', { requestId: req.id, studentId: studentIds[0] });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleImHere = () => {
+    if (students.length <= 1) {
+      submitRequest(students.map(s => s.id));
+    } else {
+      setSelectedIds(students.map(s => s.id));
+      setShowPickerModal(true);
     }
   };
 
@@ -138,6 +159,58 @@ export function HomeScreen() {
           </Card>
         ))}
       </ScrollView>
+
+      {/* Child selection modal */}
+      <Modal
+        visible={showPickerModal}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setShowPickerModal(false)}
+      >
+        <Pressable style={styles.modalOverlay} onPress={() => setShowPickerModal(false)}>
+          <Pressable style={styles.modalSheet} onPress={() => {}}>
+            <View style={styles.modalHandle} />
+            <Text style={styles.modalTitle}>Who are you picking up?</Text>
+            <Text style={styles.modalSub}>Deselect any children staying or leaving another way</Text>
+
+            <View style={styles.modalList}>
+              {students.map(s => {
+                const selected = selectedIds.includes(s.id);
+                return (
+                  <TouchableOpacity
+                    key={s.id}
+                    style={[styles.modalStudentRow, selected && styles.modalStudentRowSelected]}
+                    onPress={() => toggleStudent(s.id)}
+                    activeOpacity={0.75}
+                  >
+                    <KidPortrait initial={s.firstName[0]} tintIndex={s.tintIndex} size={44} />
+                    <View style={styles.modalStudentInfo}>
+                      <Text style={styles.modalStudentName}>{s.firstName} {s.lastName}</Text>
+                      <Text style={styles.modalStudentSub}>{s.grade} · {s.teacherName}</Text>
+                    </View>
+                    <View style={[styles.checkbox, selected && styles.checkboxSelected]}>
+                      {selected && <Text style={styles.checkmark}>✓</Text>}
+                    </View>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+
+            <Button
+              variant="primary"
+              size="lg"
+              block
+              onPress={() => submitRequest(selectedIds)}
+              style={styles.modalConfirm as any}
+            >
+              {`Confirm — ${selectedIds.length} ${selectedIds.length === 1 ? 'child' : 'children'}`}
+            </Button>
+            <TouchableOpacity style={styles.modalCancelBtn} onPress={() => setShowPickerModal(false)}>
+              <Text style={styles.modalCancelText}>Cancel</Text>
+            </TouchableOpacity>
+          </Pressable>
+        </Pressable>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -198,4 +271,36 @@ const styles = StyleSheet.create({
   kidInfo: { flex: 1 },
   kidName: { fontSize: 16, fontWeight: '650' as any, color: '#15233A' },
   kidSub: { fontSize: 13, color: '#7A8699', marginTop: 2 },
+
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },
+  modalSheet: {
+    backgroundColor: '#FFFFFF', borderTopLeftRadius: 28, borderTopRightRadius: 28,
+    padding: 24, paddingBottom: 40,
+  },
+  modalHandle: {
+    width: 40, height: 4, borderRadius: 2, backgroundColor: '#D8C9A8',
+    alignSelf: 'center', marginBottom: 20,
+  },
+  modalTitle: { fontSize: 22, fontWeight: '700', color: '#15233A', letterSpacing: -0.3 },
+  modalSub: { fontSize: 14, color: '#7A8699', marginTop: 4, marginBottom: 20 },
+  modalList: { gap: 10, marginBottom: 24 },
+  modalStudentRow: {
+    flexDirection: 'row', alignItems: 'center', gap: 14,
+    padding: 14, borderRadius: 16,
+    borderWidth: 1.5, borderColor: '#ECE0C8', backgroundColor: '#FAFAFA',
+  },
+  modalStudentRowSelected: { borderColor: '#E8A33D', backgroundColor: '#FBF5EA' },
+  modalStudentInfo: { flex: 1 },
+  modalStudentName: { fontSize: 16, fontWeight: '700', color: '#15233A' },
+  modalStudentSub: { fontSize: 13, color: '#7A8699', marginTop: 2 },
+  checkbox: {
+    width: 26, height: 26, borderRadius: 8,
+    borderWidth: 2, borderColor: '#D8C9A8',
+    alignItems: 'center', justifyContent: 'center',
+  },
+  checkboxSelected: { backgroundColor: '#E8A33D', borderColor: '#E8A33D' },
+  checkmark: { fontSize: 14, fontWeight: '700', color: '#FFFFFF' },
+  modalConfirm: { marginBottom: 10 },
+  modalCancelBtn: { alignItems: 'center', paddingVertical: 12 },
+  modalCancelText: { fontSize: 15, fontWeight: '600', color: '#7A8699' },
 });
