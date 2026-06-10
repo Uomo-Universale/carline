@@ -209,7 +209,7 @@ const styles = StyleSheet.create({
   filterText: { fontSize: 12, fontWeight: '600', color: '#3B4A66' },
   filterTextActive: { color: '#FFFFFF' },
 
-  listContent: { paddingHorizontal: 16, paddingBottom: 100, gap: 0 },
+  listContent: { paddingHorizontal: 16, paddingTop: 20, paddingBottom: 100, gap: 0 },
   studentRow: {
     flexDirection: 'row', alignItems: 'center', gap: 12,
     paddingVertical: 12, paddingHorizontal: 12,

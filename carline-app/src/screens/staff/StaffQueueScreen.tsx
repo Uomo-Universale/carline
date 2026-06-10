@@ -455,7 +455,7 @@ const styles = StyleSheet.create({
   filterText: { fontSize: 11, fontWeight: '600', color: '#3B4A66' },
   filterTextActive: { color: '#FFFFFF' },
 
-  list: { paddingHorizontal: 16, paddingTop: 12, paddingBottom: 32, gap: 8 },
+  list: { paddingHorizontal: 16, paddingTop: 20, paddingBottom: 32, gap: 8 },
 
   row: {
     flexDirection: 'row', alignItems: 'flex-start', gap: 10,
