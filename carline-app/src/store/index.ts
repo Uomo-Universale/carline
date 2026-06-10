@@ -19,6 +19,7 @@ interface CarLineStore {
   // Staff: advance a queue entry
   advanceQueueEntry: (requestId: string) => Promise<void>;
   setQueueEntryStatus: (requestId: string, status: PickupStatus) => Promise<void>;
+  setGroupAndPosition: (requestId: string, studentId: string, group: number, position: number) => Promise<void>;
 
   // Bootstrap: subscribe to data source real-time updates
   subscribeToQueue: () => () => void;
@@ -47,7 +48,10 @@ export const useStore = create<CarLineStore>((set, get) => ({
 
   setQueueEntryStatus: async (requestId, status) => {
     await dataSource.setRequestStatus(requestId, status);
-    // Real-time update arrives via subscribeToQueue callback
+  },
+
+  setGroupAndPosition: async (requestId, studentId, group, position) => {
+    await dataSource.setGroupAndPosition(requestId, studentId, group, position);
   },
 
   subscribeToQueue: () => {

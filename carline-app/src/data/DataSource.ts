@@ -45,6 +45,7 @@ export interface DataSource {
   getDismissalQueue(): Promise<QueueEntry[]>;
   advanceRequestStatus(requestId: string): Promise<PickupRequest>;
   setRequestStatus(requestId: string, status: PickupStatus): Promise<PickupRequest>;
+  setGroupAndPosition(requestId: string, studentId: string, group: number, position: number): Promise<void>;
 
   // ── Staff: early pickup approvals ─────────────────────────
   getEarlyPickupApprovals(): Promise<EarlyPickupApproval[]>;

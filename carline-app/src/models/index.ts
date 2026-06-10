@@ -3,7 +3,7 @@
 // school-issued credentials with explicit data-handling agreements in place.
 
 export type PickupStatus = 'requested' | 'arrived' | 'called' | 'released';
-export type PickupType = 'carline' | 'walkin' | 'early' | 'message';
+export type PickupType = 'carline' | 'walkin' | 'early' | 'bus' | 'message';
 export type EarlyPickupReason = 'doctor' | 'family' | 'religious' | 'other';
 export type RequestStatus = 'pending' | 'approved' | 'denied';
 
@@ -86,10 +86,13 @@ export interface QueueEntry {
   studentId: string;
   guardianId: string;
   vehicleId?: string;
+  pickupType?: PickupType;
   status: PickupStatus;
   arrivedAt: string;
   queuePosition: number;
-  alert?: string;         // e.g. "Approved pickup: Aunt"
+  group?: number;     // 1–5: holding-area group assigned by staff
+  position?: number;  // 1–20: physical spot within the group
+  alert?: string;     // e.g. "Approved pickup: Aunt"
 }
 
 export interface Notification {

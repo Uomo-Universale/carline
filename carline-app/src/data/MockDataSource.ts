@@ -21,6 +21,9 @@ const STUDENTS: Student[] = [
   { id: 's8', firstName: 'Sam',     lastName: 'Friedman',  grade: 'Kindergarten', homeroom: 'K-B', teacherName: 'Ms. Wexler',   tintIndex: 2 },
   { id: 's9', firstName: 'Ava',     lastName: 'Klein',     grade: '2nd grade',    homeroom: '2-B', teacherName: 'Mrs. Adler',   tintIndex: 3 },
   { id: 's10',firstName: 'Levi',    lastName: 'Cohen',     grade: '5th grade',    homeroom: '5-B', teacherName: 'Mr. Stern',    tintIndex: 4 },
+  { id: 's11',firstName: 'Maya',    lastName: 'Shapiro',   grade: '4th grade',    homeroom: '4-A', teacherName: 'Mr. Friedman', tintIndex: 2 },
+  { id: 's12',firstName: 'Noah',    lastName: 'Stern',     grade: '2nd grade',    homeroom: '2-B', teacherName: 'Mrs. Adler',   tintIndex: 3 },
+  { id: 's13',firstName: 'Leah',    lastName: 'Weiss',     grade: 'Kindergarten', homeroom: 'K-B', teacherName: 'Ms. Wexler',   tintIndex: 0 },
 ];
 
 const GUARDIANS: Guardian[] = [
@@ -61,15 +64,19 @@ const EARLY_PICKUP_APPROVALS: EarlyPickupApproval[] = [
 // ── Live queue simulation ─────────────────────────────────────────────────────
 
 let _queueEntries: QueueEntry[] = [
-  { requestId: 'q1', studentId: 's1', guardianId: 'g1', vehicleId: 'v1', status: 'called',   arrivedAt: '3:22 PM', queuePosition: 1 },
-  { requestId: 'q2', studentId: 's2', guardianId: 'g1', vehicleId: 'v1', status: 'called',   arrivedAt: '3:22 PM', queuePosition: 1 },
-  { requestId: 'q3', studentId: 's3', guardianId: 'g2', vehicleId: 'v2', status: 'arrived',  arrivedAt: '3:23 PM', queuePosition: 2 },
-  { requestId: 'q4', studentId: 's4', guardianId: 'g3', vehicleId: 'v3', status: 'arrived',  arrivedAt: '3:24 PM', queuePosition: 3 },
-  { requestId: 'q5', studentId: 's5', guardianId: 'g4', vehicleId: 'v4', status: 'arrived',  arrivedAt: '3:25 PM', queuePosition: 4, alert: 'Approved pickup: Aunt' },
-  { requestId: 'q6', studentId: 's6', guardianId: 'g5', vehicleId: 'v5', status: 'arrived',  arrivedAt: '3:25 PM', queuePosition: 5 },
-  { requestId: 'q7', studentId: 's7', guardianId: 'g6', vehicleId: 'v6', status: 'arrived',  arrivedAt: '3:26 PM', queuePosition: 6 },
-  { requestId: 'q8', studentId: 's8', guardianId: 'g7', vehicleId: 'v7', status: 'released', arrivedAt: '3:27 PM', queuePosition: 0 },
-  { requestId: 'q9', studentId: 's9', guardianId: 'g8', vehicleId: 'v8', status: 'released', arrivedAt: '3:21 PM', queuePosition: 0 },
+  { requestId: 'q1',   studentId: 's1',  guardianId: 'g1', vehicleId: 'v1', pickupType: 'carline', status: 'called',   arrivedAt: '3:22 PM', queuePosition: 1, group: 1, position: 2 },
+  { requestId: 'q2',   studentId: 's2',  guardianId: 'g1', vehicleId: 'v1', pickupType: 'carline', status: 'called',   arrivedAt: '3:22 PM', queuePosition: 1, group: 1, position: 2 },
+  { requestId: 'q3',   studentId: 's3',  guardianId: 'g2', vehicleId: 'v2', pickupType: 'carline', status: 'arrived',  arrivedAt: '3:23 PM', queuePosition: 2 },
+  { requestId: 'q4',   studentId: 's4',  guardianId: 'g3', vehicleId: 'v3', pickupType: 'carline', status: 'arrived',  arrivedAt: '3:24 PM', queuePosition: 3 },
+  { requestId: 'q5',   studentId: 's5',  guardianId: 'g4', vehicleId: 'v4', pickupType: 'carline', status: 'arrived',  arrivedAt: '3:25 PM', queuePosition: 4, alert: 'Approved pickup: Aunt' },
+  { requestId: 'q6',   studentId: 's7',  guardianId: 'g6', vehicleId: 'v6', pickupType: 'carline', status: 'arrived',  arrivedAt: '3:26 PM', queuePosition: 5 },
+  { requestId: 'qw1',  studentId: 's6',  guardianId: 'g5', vehicleId: undefined, pickupType: 'walkin', status: 'arrived', arrivedAt: '3:24 PM', queuePosition: 0 },
+  { requestId: 'qe1',  studentId: 's9',  guardianId: 'g8', vehicleId: undefined, pickupType: 'early',  status: 'arrived', arrivedAt: '2:45 PM', queuePosition: 0 },
+  { requestId: 'q8',   studentId: 's8',  guardianId: 'g7', vehicleId: 'v7', pickupType: 'carline', status: 'released', arrivedAt: '3:27 PM', queuePosition: 0 },
+  { requestId: 'bus1', studentId: 's10', guardianId: '',   vehicleId: undefined, pickupType: 'bus', status: 'arrived',  arrivedAt: '3:30 PM', queuePosition: 0 },
+  { requestId: 'bus2', studentId: 's11', guardianId: '',   vehicleId: undefined, pickupType: 'bus', status: 'arrived',  arrivedAt: '3:30 PM', queuePosition: 0 },
+  { requestId: 'bus3', studentId: 's12', guardianId: '',   vehicleId: undefined, pickupType: 'bus', status: 'arrived',  arrivedAt: '3:30 PM', queuePosition: 0 },
+  { requestId: 'bus4', studentId: 's13', guardianId: '',   vehicleId: undefined, pickupType: 'bus', status: 'released', arrivedAt: '3:15 PM', queuePosition: 0 },
 ];
 
 let _activeRequests: PickupRequest[] = [];
@@ -149,27 +156,33 @@ export class MockDataSource implements DataSource {
     };
     _activeRequests.push(request);
 
-    if (params.type === 'carline') {
-      // Add to queue and simulate arrival after 1s
+    if (params.type === 'carline' || params.type === 'walkin' || params.type === 'early') {
       const newEntries: QueueEntry[] = params.studentIds.map(studentId => ({
         requestId: id,
         studentId,
         guardianId: params.guardianId,
         vehicleId: params.vehicleId,
+        pickupType: params.type,
         status: 'requested' as PickupStatus,
         arrivedAt: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }),
         queuePosition: _queueEntries.filter(q => q.status !== 'released').length + 1,
       }));
-      setTimeout(() => {
-        newEntries.forEach(e => {
-          e.status = 'arrived';
-          _queueEntries.push(e);
-        });
+
+      if (params.type === 'carline') {
+        // Simulate driving into the lot — arrives after 1s
+        setTimeout(() => {
+          newEntries.forEach(e => { e.status = 'arrived'; _queueEntries.push(e); });
+          notifyQueueListeners();
+          const reqListeners = _statusListeners.get(id);
+          if (reqListeners) reqListeners.forEach(fn => fn('arrived'));
+        }, 1000);
+      } else {
+        // Walk-in and early pickup: parent is physically present — arrived immediately
+        newEntries.forEach(e => { e.status = 'arrived'; _queueEntries.push(e); });
         notifyQueueListeners();
-        // Notify status listeners
         const reqListeners = _statusListeners.get(id);
         if (reqListeners) reqListeners.forEach(fn => fn('arrived'));
-      }, 1000);
+      }
     }
 
     return request;
@@ -211,6 +224,13 @@ export class MockDataSource implements DataSource {
 
     const req = _activeRequests.find(r => r.id === requestId);
     return req ?? { id: requestId, guardianId: '', studentIds: [], type: 'carline', status: newEntry?.status ?? 'released', requestedAt: '' };
+  }
+
+  async setGroupAndPosition(requestId: string, studentId: string, group: number, position: number): Promise<void> {
+    _queueEntries = _queueEntries.map(e =>
+      e.requestId === requestId && e.studentId === studentId ? { ...e, group, position } : e
+    );
+    notifyQueueListeners();
   }
 
   async setRequestStatus(requestId: string, status: PickupStatus): Promise<PickupRequest> {

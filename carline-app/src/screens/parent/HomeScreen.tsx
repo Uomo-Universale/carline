@@ -23,6 +23,7 @@ export function HomeScreen() {
   const [loading, setLoading] = useState(false);
   const [showPickerModal, setShowPickerModal] = useState(false);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [pendingType, setPendingType] = useState<'carline' | 'walkin'>('carline');
   const { queue } = useStore();
 
   useEffect(() => {
@@ -51,7 +52,7 @@ export function HomeScreen() {
     );
   };
 
-  const submitRequest = async (studentIds: string[]) => {
+  const submitRequest = async (studentIds: string[], type: 'carline' | 'walkin' = pendingType) => {
     if (!guardian || studentIds.length === 0) return;
     setLoading(true);
     setShowPickerModal(false);
@@ -61,8 +62,8 @@ export function HomeScreen() {
       const req = await dataSource.createPickupRequest({
         guardianId: guardian.id,
         studentIds,
-        vehicleId: vehicle?.id,
-        type: 'carline',
+        vehicleId: type === 'carline' ? vehicle?.id : undefined,
+        type,
       });
       setActiveRequests(prev => [...prev, req]);
       navigation.navigate('LiveStatus', { requestId: req.id, studentId: studentIds[0] });
@@ -72,12 +73,19 @@ export function HomeScreen() {
   };
 
   const handleImHere = () => {
+    setPendingType('carline');
     if (students.length <= 1) {
-      submitRequest(students.map(s => s.id));
+      submitRequest(students.map(s => s.id), 'carline');
     } else {
       setSelectedIds(students.map(s => s.id));
       setShowPickerModal(true);
     }
+  };
+
+  const handleWalkingUp = () => {
+    setPendingType('walkin');
+    setSelectedIds(students.map(s => s.id));
+    setShowPickerModal(true);
   };
 
   const firstName = guardian?.firstName ?? '';
@@ -130,7 +138,7 @@ export function HomeScreen() {
             variant="secondary"
             size="md"
             block
-            onPress={() => navigation.navigate('PickupPicker')}
+            onPress={handleWalkingUp}
             style={{ flex: 1 } as any}
           >
             🚶 Walking up
@@ -170,7 +178,9 @@ export function HomeScreen() {
         <Pressable style={styles.modalOverlay} onPress={() => setShowPickerModal(false)}>
           <Pressable style={styles.modalSheet} onPress={() => {}}>
             <View style={styles.modalHandle} />
-            <Text style={styles.modalTitle}>Who are you picking up?</Text>
+            <Text style={styles.modalTitle}>
+              {pendingType === 'carline' ? 'Who are you picking up?' : 'Who is walking up with you?'}
+            </Text>
             <Text style={styles.modalSub}>Deselect any children staying or leaving another way</Text>
 
             <View style={styles.modalList}>
@@ -195,6 +205,15 @@ export function HomeScreen() {
                 );
               })}
             </View>
+
+            {pendingType === 'carline' && (
+              <TouchableOpacity
+                style={styles.vehicleLink}
+                onPress={() => { setShowPickerModal(false); navigation.navigate('Vehicle'); }}
+              >
+                <Text style={styles.vehicleLinkText}>Using a different car today? →</Text>
+              </TouchableOpacity>
+            )}
 
             <Button
               variant="primary"
@@ -300,6 +319,8 @@ const styles = StyleSheet.create({
   },
   checkboxSelected: { backgroundColor: '#E8A33D', borderColor: '#E8A33D' },
   checkmark: { fontSize: 14, fontWeight: '700', color: '#FFFFFF' },
+  vehicleLink: { alignItems: 'center', paddingVertical: 6, marginBottom: 4 },
+  vehicleLinkText: { fontSize: 13, color: '#2A6FA3', fontWeight: '600' },
   modalConfirm: { marginBottom: 10 },
   modalCancelBtn: { alignItems: 'center', paddingVertical: 12 },
   modalCancelText: { fontSize: 15, fontWeight: '600', color: '#7A8699' },

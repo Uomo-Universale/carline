@@ -9,8 +9,6 @@ import { KidPortrait } from '../../components/ui/KidPortrait';
 import { dataSource } from '../../data/provider';
 import type { Student, EarlyPickupReason } from '../../models';
 
-const TIME_SLOTS = ['10:00', '10:30', '11:00', '11:30', '12:00', '12:30', '1:00', '1:30', '2:00', '2:15', '2:30'];
-
 const REASONS: { id: EarlyPickupReason; label: string; icon: string }[] = [
   { id: 'doctor',   label: 'Medical',   icon: '🏥' },
   { id: 'family',   label: 'Family',    icon: '👨‍👩‍👧' },
@@ -22,7 +20,6 @@ export function EarlyPickupScreen() {
   const navigation = useNavigation<any>();
   const [students, setStudents] = useState<Student[]>([]);
   const [selectedStudents, setSelectedStudents] = useState<string[]>([]);
-  const [time, setTime] = useState('');
   const [reason, setReason] = useState<EarlyPickupReason | ''>('');
   const [note, setNote] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -42,26 +39,21 @@ export function EarlyPickupScreen() {
     );
   };
 
-  const canSubmit = selectedStudents.length > 0 && time && reason;
+  const canSubmit = selectedStudents.length > 0 && reason !== '';
 
   const handleSubmit = async () => {
     if (!canSubmit) return;
     setSubmitting(true);
     try {
       const guardian = await dataSource.getCurrentGuardian();
-      await dataSource.createPickupRequest({
+      const req = await dataSource.createPickupRequest({
         guardianId: guardian.id,
         studentIds: selectedStudents,
         type: 'early',
-        earlyPickupTime: time,
         earlyPickupReason: reason as EarlyPickupReason,
         earlyPickupNote: note.trim() || undefined,
       });
-      Alert.alert(
-        'Request sent',
-        `Early pickup at ${time} has been sent to the office for approval.`,
-        [{ text: 'OK', onPress: () => navigation.goBack() }]
-      );
+      navigation.replace('LiveStatus', { requestId: req.id, studentId: selectedStudents[0] });
     } catch {
       Alert.alert('Error', 'Could not submit request. Please try again.');
     } finally {
@@ -106,20 +98,6 @@ export function EarlyPickupScreen() {
           })}
         </View>
 
-        {/* Time picker */}
-        <Text style={styles.sectionLabel}>What time?</Text>
-        <View style={styles.timeGrid}>
-          {TIME_SLOTS.map(t => (
-            <TouchableOpacity
-              key={t}
-              onPress={() => setTime(t)}
-              style={[styles.timeChip, time === t && styles.timeChipSelected]}
-            >
-              <Text style={[styles.timeText, time === t && styles.timeTextSelected]}>{t}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-
         {/* Reason */}
         <Text style={styles.sectionLabel}>Reason</Text>
         <View style={styles.reasonRow}>
@@ -151,7 +129,7 @@ export function EarlyPickupScreen() {
         {/* Notice */}
         <View style={styles.notice}>
           <Text style={styles.noticeText}>
-            Office staff will review and approve your request. You'll be notified once confirmed.
+            A staff member will bring your child to you shortly. You'll see their status update in real time.
           </Text>
         </View>
 
