@@ -42,8 +42,8 @@
       "eas": {
         "projectId": "ff16359a-68f7-44c6-a360-4fbfd77c8850"
       },
-      "supabaseUrl": "https://YOUR_PROJECT_REF.supabase.co",
-      "supabaseAnonKey": "YOUR_ANON_KEY_HERE"
+      "supabaseUrl": "https://mboifgknbbpgbsksdfnq.supabase.co",
+      "supabaseAnonKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1ib2lmZ2tuYmJwZ2Jza3NkZm5xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwNzgwNjEsImV4cCI6MjA5NTY1NDA2MX0.BT2yTQ2CluzwGyLfqR3fKSgv2obrOLAykAm2qGr92q0"
     }
   }
 } 

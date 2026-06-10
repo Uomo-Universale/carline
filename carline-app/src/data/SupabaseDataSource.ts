@@ -1,654 +1,386 @@
-// CarLine — SupabaseDataSource
-// Drop-in replacement for MockDataSource. Switch by updating provider.ts.
-//
-// To activate:
-//   import { SupabaseDataSource } from './SupabaseDataSource';
-//   export const dataSource: DataSource = new SupabaseDataSource();
-
 import { supabase } from '../lib/supabase';
 import type {
-  Student,
-  Guardian,
-  Vehicle,
-  PickupRequest,
-  AuthorizedPickup,
-  EarlyPickupApproval,
-  QueueEntry,
-  Notification,
-  PickupStatus,
+  Student, Guardian, Vehicle, PickupRequest, AuthorizedPickup,
+  EarlyPickupApproval, QueueEntry, Notification, PickupStatus, PickupType,
 } from '../models';
 import type { DataSource, CreatePickupRequestParams } from './DataSource';
 
-// ── DB row types (snake_case from Supabase) ──────────────────────────────────
+// ── Row → Model mappers ──────────────────────────────────────────────────────
 
-interface DbStudent {
-  id: string;
-  first_name: string;
-  last_name: string;
-  grade: string;
-  homeroom: string;
-  teacher_name: string;
-  tint_index: number;
-  veracross_id: string | null;
-  created_at: string;
-  updated_at: string;
-}
-
-interface DbGuardian {
-  id: string;
-  auth_user_id: string | null;
-  first_name: string;
-  last_name: string;
-  phone: string | null;
-  email: string;
-  is_primary: boolean;
-  role: 'guardian' | 'staff' | 'admin';
-  expo_push_token: string | null;
-  veracross_id: string | null;
-  created_at: string;
-  updated_at: string;
-}
-
-interface DbVehicle {
-  id: string;
-  guardian_id: string;
-  year: string;
-  make: string;
-  model: string;
-  color: string;
-  color_hex: string;
-  plate: string;
-  state: string;
-  is_active: boolean;
-  created_at: string;
-  updated_at: string;
-}
-
-interface DbAuthorizedPickup {
-  id: string;
-  guardian_id: string;
-  name: string;
-  relation: string;
-  is_primary: boolean;
-  student_ids: string[];
-  veracross_id: string | null;
-  created_at: string;
-  updated_at: string;
-}
-
-interface DbPickupRequest {
-  id: string;
-  guardian_id: string;
-  vehicle_id: string | null;
-  type: 'carline' | 'walkin' | 'early' | 'message';
-  status: PickupStatus;
-  student_ids: string[];
-  queue_position: number | null;
-  requested_at: string;
-  arrived_at: string | null;
-  called_at: string | null;
-  released_at: string | null;
-  early_pickup_time: string | null;
-  early_pickup_reason: 'doctor' | 'family' | 'religious' | 'other' | null;
-  early_pickup_note: string | null;
-  approval_status: 'pending' | 'approved' | 'denied' | null;
-  created_at: string;
-  updated_at: string;
-}
-
-interface DbEarlyPickupApproval {
-  id: string;
-  request_id: string;
-  student_id: string;
-  guardian_id: string;
-  pickup_time: string;
-  reason: 'doctor' | 'family' | 'religious' | 'other' | null;
-  note: string | null;
-  submitted_at: string;
-  status: 'pending' | 'approved' | 'denied';
-  reviewed_by: string | null;
-  denial_note: string | null;
-  created_at: string;
-  updated_at: string;
-}
-
-interface DbNotification {
-  id: string;
-  guardian_id: string;
-  type: 'status_change' | 'early_pickup_approved' | 'early_pickup_denied';
-  title: string;
-  body: string;
-  target_student_id: string | null;
-  read: boolean;
-  created_at: string;
-  updated_at: string;
-}
-
-// ── Mappers: DB row → TypeScript model ──────────────────────────────────────
-
-function mapStudent(row: DbStudent): Student {
+function mapStudent(r: any): Student {
   return {
-    id: row.id,
-    firstName: row.first_name,
-    lastName: row.last_name,
-    grade: row.grade,
-    homeroom: row.homeroom,
-    teacherName: row.teacher_name,
-    tintIndex: row.tint_index,
+    id: r.id,
+    firstName: r.first_name,
+    lastName: r.last_name,
+    grade: r.grade,
+    homeroom: r.homeroom,
+    teacherName: r.teacher_name,
+    tintIndex: r.tint_index,
   };
 }
 
-function mapGuardian(row: DbGuardian, studentIds: string[]): Guardian {
+function mapGuardian(r: any, studentIds: string[]): Guardian {
   return {
-    id: row.id,
-    firstName: row.first_name,
-    lastName: row.last_name,
-    phone: row.phone ?? '',
-    email: row.email,
+    id: r.id,
+    firstName: r.first_name,
+    lastName: r.last_name,
+    phone: r.phone ?? '',
+    email: r.email ?? '',
     studentIds,
-    isPrimary: row.is_primary,
+    isPrimary: r.is_primary,
   };
 }
 
-function mapVehicle(row: DbVehicle): Vehicle {
+function mapVehicle(r: any): Vehicle {
   return {
-    id: row.id,
-    guardianId: row.guardian_id,
-    year: row.year,
-    make: row.make,
-    model: row.model,
-    color: row.color,
-    colorHex: row.color_hex,
-    plate: row.plate,
-    state: row.state,
-    isActive: row.is_active,
+    id: r.id,
+    guardianId: r.guardian_id,
+    year: r.year,
+    make: r.make,
+    model: r.model,
+    color: r.color,
+    colorHex: r.color_hex,
+    plate: r.plate,
+    state: r.state,
+    isActive: r.is_active,
   };
 }
 
-function mapAuthorizedPickup(row: DbAuthorizedPickup): AuthorizedPickup {
+function mapQueueEntry(r: any): QueueEntry {
   return {
-    id: row.id,
-    name: row.name,
-    relation: row.relation,
-    isPrimary: row.is_primary,
-    studentIds: row.student_ids ?? [],
+    requestId:     r.request_id,
+    studentId:     r.student_id,
+    guardianId:    r.guardian_id,
+    vehicleId:     r.vehicle_id ?? undefined,
+    pickupType:    r.pickup_type as PickupType,
+    status:        r.status as PickupStatus,
+    arrivedAt:     r.arrived_at,
+    queuePosition: r.queue_position,
+    group:         r.group_num   ?? undefined,
+    position:      r.position_num ?? undefined,
+    busPlate:      r.bus_plate   ?? undefined,
+    alert:         r.alert       ?? undefined,
   };
 }
 
-function mapPickupRequest(row: DbPickupRequest): PickupRequest {
+function mapApproval(r: any): EarlyPickupApproval {
   return {
-    id: row.id,
-    guardianId: row.guardian_id,
-    studentIds: row.student_ids ?? [],
-    vehicleId: row.vehicle_id ?? undefined,
-    type: row.type,
-    status: row.status,
-    requestedAt: row.requested_at,
-    arrivedAt: row.arrived_at ?? undefined,
-    calledAt: row.called_at ?? undefined,
-    releasedAt: row.released_at ?? undefined,
-    queuePosition: row.queue_position ?? undefined,
-    earlyPickupTime: row.early_pickup_time ?? undefined,
-    earlyPickupReason: row.early_pickup_reason ?? undefined,
-    earlyPickupNote: row.early_pickup_note ?? undefined,
-    approvalStatus: row.approval_status ?? undefined,
+    id:          r.id,
+    requestId:   r.request_id,
+    studentId:   r.student_id,
+    guardianId:  r.guardian_id,
+    pickupTime:  r.pickup_time,
+    reason:      r.reason ?? 'other',
+    note:        r.note ?? undefined,
+    submittedAt: r.submitted_at,
+    status:      r.status,
+    reviewedBy:  r.reviewed_by ?? undefined,
+    denialNote:  r.denial_note ?? undefined,
   };
 }
 
-function mapEarlyPickupApproval(row: DbEarlyPickupApproval): EarlyPickupApproval {
-  return {
-    id: row.id,
-    requestId: row.request_id,
-    studentId: row.student_id,
-    guardianId: row.guardian_id,
-    pickupTime: row.pickup_time,
-    reason: row.reason ?? 'other',
-    note: row.note ?? undefined,
-    submittedAt: row.submitted_at,
-    status: row.status,
-    reviewedBy: row.reviewed_by ?? undefined,
-    denialNote: row.denial_note ?? undefined,
-  };
+function now12h() {
+  return new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
 }
 
-function mapNotification(row: DbNotification): Notification {
-  return {
-    id: row.id,
-    type: row.type,
-    title: row.title,
-    body: row.body,
-    targetStudentId: row.target_student_id ?? undefined,
-    createdAt: row.created_at,
-    read: row.read,
-  };
-}
-
-/**
- * Formats a pickup_request row into one QueueEntry per student in student_ids.
- * arrivedAt is formatted as a locale time string when arrived_at is present.
- */
-function mapPickupRequestToQueueEntries(row: DbPickupRequest): QueueEntry[] {
-  const arrivedAt = row.arrived_at
-    ? new Date(row.arrived_at).toLocaleTimeString('en-US', {
-        hour: 'numeric',
-        minute: '2-digit',
-      })
-    : '';
-
-  return (row.student_ids ?? []).map((studentId) => ({
-    requestId: row.id,
-    studentId,
-    guardianId: row.guardian_id,
-    vehicleId: row.vehicle_id ?? undefined,
-    status: row.status,
-    arrivedAt,
-    queuePosition: row.queue_position ?? 0,
-  }));
-}
-
-// ── SupabaseDataSource ────────────────────────────────────────────────────────
+// ── SupabaseDataSource ───────────────────────────────────────────────────────
 
 export class SupabaseDataSource implements DataSource {
-  // ── Guardian / auth ────────────────────────────────────────────────────────
+
+  // Hardcoded until auth is wired up in Phase 2
+  private _currentGuardianId = 'g1';
+
+  // ── Guardian / auth ──────────────────────────────────────────────────────
 
   async getCurrentGuardian(): Promise<Guardian> {
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-    if (authError || !user) throw new Error('Not authenticated');
-
-    const { data: row, error } = await supabase
-      .from('guardians')
-      .select('*')
-      .eq('auth_user_id', user.id)
-      .single();
-
-    if (error || !row) throw new Error(`Guardian not found: ${error?.message}`);
-
-    const studentIds = await this._getStudentIdsForGuardian(row.id);
-    return mapGuardian(row as DbGuardian, studentIds);
+    const g = await this.getGuardianById(this._currentGuardianId);
+    if (!g) throw new Error('Current guardian not found');
+    return g;
   }
 
   async getGuardianById(id: string): Promise<Guardian | null> {
-    const { data: row, error } = await supabase
-      .from('guardians')
-      .select('*')
-      .eq('id', id)
-      .single();
-
-    if (error || !row) return null;
-
-    const studentIds = await this._getStudentIdsForGuardian(id);
-    return mapGuardian(row as DbGuardian, studentIds);
+    const { data, error } = await supabase.from('guardians').select('*').eq('id', id).single();
+    if (error || !data) return null;
+    const studentIds = await this._studentIdsFor(id);
+    return mapGuardian(data, studentIds);
   }
 
-  // ── Students ───────────────────────────────────────────────────────────────
+  // ── Students ─────────────────────────────────────────────────────────────
 
   async getStudentsForGuardian(guardianId: string): Promise<Student[]> {
-    // PostgREST dot-notation filter on a joined table is not supported; instead
-    // fetch the student IDs via the join table, then query students by those IDs.
-    const studentIds = await this._getStudentIdsForGuardian(guardianId);
-    if (studentIds.length === 0) return [];
-
-    const { data, error } = await supabase
-      .from('students')
-      .select('*')
-      .in('id', studentIds);
-
-    if (error) throw new Error(`getStudentsForGuardian: ${error.message}`);
-    return (data ?? []).map((row) => mapStudent(row as DbStudent));
+    const ids = await this._studentIdsFor(guardianId);
+    if (!ids.length) return [];
+    const { data } = await supabase.from('students').select('*').in('id', ids);
+    return (data ?? []).map(mapStudent);
   }
 
   async getStudentById(id: string): Promise<Student | null> {
-    const { data: row, error } = await supabase
-      .from('students')
-      .select('*')
-      .eq('id', id)
-      .single();
-
-    if (error || !row) return null;
-    return mapStudent(row as DbStudent);
+    const { data, error } = await supabase.from('students').select('*').eq('id', id).single();
+    if (error || !data) return null;
+    return mapStudent(data);
   }
 
-  // ── Vehicles ───────────────────────────────────────────────────────────────
+  // ── Vehicles ─────────────────────────────────────────────────────────────
 
   async getVehiclesForGuardian(guardianId: string): Promise<Vehicle[]> {
-    const { data, error } = await supabase
-      .from('vehicles')
-      .select('*')
-      .eq('guardian_id', guardianId)
-      .order('created_at', { ascending: true });
-
-    if (error) throw new Error(`getVehiclesForGuardian: ${error.message}`);
-    return (data ?? []).map((row) => mapVehicle(row as DbVehicle));
+    const { data } = await supabase
+      .from('vehicles').select('*').eq('guardian_id', guardianId).order('created_at');
+    return (data ?? []).map(mapVehicle);
   }
 
   async getVehicleById(id: string): Promise<Vehicle | null> {
-    const { data: row, error } = await supabase
-      .from('vehicles')
-      .select('*')
-      .eq('id', id)
-      .single();
-
-    if (error || !row) return null;
-    return mapVehicle(row as DbVehicle);
+    const { data, error } = await supabase.from('vehicles').select('*').eq('id', id).single();
+    if (error || !data) return null;
+    return mapVehicle(data);
   }
 
   async saveVehicle(vehicle: Omit<Vehicle, 'id'>): Promise<Vehicle> {
-    const { data: row, error } = await supabase
+    const { data, error } = await supabase
       .from('vehicles')
       .insert({
         guardian_id: vehicle.guardianId,
-        year: vehicle.year,
-        make: vehicle.make,
-        model: vehicle.model,
-        color: vehicle.color,
-        color_hex: vehicle.colorHex,
-        plate: vehicle.plate,
-        state: vehicle.state,
-        is_active: vehicle.isActive,
+        year: vehicle.year, make: vehicle.make, model: vehicle.model,
+        color: vehicle.color, color_hex: vehicle.colorHex,
+        plate: vehicle.plate, state: vehicle.state, is_active: vehicle.isActive,
       })
-      .select()
-      .single();
-
-    if (error || !row) throw new Error(`saveVehicle: ${error?.message}`);
-    return mapVehicle(row as DbVehicle);
+      .select().single();
+    if (error || !data) throw new Error(`saveVehicle: ${error?.message}`);
+    return mapVehicle(data);
   }
 
   async setActiveVehicle(vehicleId: string, guardianId: string): Promise<void> {
-    // Deactivate all vehicles for this guardian, then activate the chosen one
-    const { error: deactivateError } = await supabase
-      .from('vehicles')
-      .update({ is_active: false })
-      .eq('guardian_id', guardianId);
-
-    if (deactivateError) throw new Error(`setActiveVehicle (deactivate): ${deactivateError.message}`);
-
-    const { error: activateError } = await supabase
-      .from('vehicles')
-      .update({ is_active: true })
-      .eq('id', vehicleId)
-      .eq('guardian_id', guardianId);
-
-    if (activateError) throw new Error(`setActiveVehicle (activate): ${activateError.message}`);
+    await supabase.from('vehicles').update({ is_active: false }).eq('guardian_id', guardianId);
+    await supabase.from('vehicles').update({ is_active: true }).eq('id', vehicleId);
   }
 
-  // ── Authorized pickups ─────────────────────────────────────────────────────
+  // ── Authorized pickups ────────────────────────────────────────────────────
 
   async getAuthorizedPickups(guardianId: string): Promise<AuthorizedPickup[]> {
-    const { data, error } = await supabase
-      .from('authorized_pickups')
-      .select('*')
-      .eq('guardian_id', guardianId)
-      .order('created_at', { ascending: true });
-
-    if (error) throw new Error(`getAuthorizedPickups: ${error.message}`);
-    return (data ?? []).map((row) => mapAuthorizedPickup(row as DbAuthorizedPickup));
+    const { data } = await supabase
+      .from('authorized_pickups').select('*').eq('guardian_id', guardianId);
+    return (data ?? []).map((r: any) => ({
+      id: r.id, name: r.name, relation: r.relation,
+      isPrimary: r.is_primary, studentIds: r.student_ids ?? [],
+    }));
   }
 
-  // ── Pickup requests ────────────────────────────────────────────────────────
+  // ── Pickup requests ───────────────────────────────────────────────────────
 
   async createPickupRequest(params: CreatePickupRequestParams): Promise<PickupRequest> {
-    const { data: row, error } = await supabase
-      .from('pickup_requests')
-      .insert({
-        guardian_id: params.guardianId,
-        student_ids: params.studentIds,
-        vehicle_id: params.vehicleId ?? null,
-        type: params.type,
-        status: 'requested',
-        early_pickup_time: params.earlyPickupTime ?? null,
-        early_pickup_reason: params.earlyPickupReason ?? null,
-        early_pickup_note: params.earlyPickupNote ?? null,
-        approval_status: params.type === 'early' ? 'pending' : null,
-      })
-      .select()
-      .single();
+    const requestId = `req-${Date.now()}`;
+    const arrivedAt = now12h();
+    const isImmediate = params.type === 'walkin' || params.type === 'early';
 
-    if (error || !row) throw new Error(`createPickupRequest: ${error?.message}`);
+    const rows = params.studentIds.map(studentId => ({
+      request_id:    requestId,
+      student_id:    studentId,
+      guardian_id:   params.guardianId,
+      vehicle_id:    params.vehicleId ?? null,
+      pickup_type:   params.type,
+      status:        isImmediate ? 'arrived' : 'requested',
+      arrived_at:    arrivedAt,
+      queue_position: 0,
+    }));
 
-    // For early pickups, create one approval row per student so staff can review them.
-    if (params.type === 'early' && params.earlyPickupReason) {
-      const approvalRows = params.studentIds.map((studentId) => ({
-        request_id:   row.id,
-        student_id:   studentId,
-        guardian_id:  params.guardianId,
-        pickup_time:  params.earlyPickupTime!,
-        reason:       params.earlyPickupReason!,
-        note:         params.earlyPickupNote ?? null,
-        submitted_at: new Date().toISOString(),
-        status:       'pending',
-      }));
-      const { error: approvalError } = await supabase
-        .from('early_pickup_approvals')
-        .insert(approvalRows);
-      if (approvalError) throw new Error(`createPickupRequest (approval): ${approvalError.message}`);
+    const { error } = await supabase.from('queue_entries').insert(rows);
+    if (error) throw new Error(`createPickupRequest: ${error.message}`);
+
+    if (!isImmediate) {
+      setTimeout(async () => {
+        await supabase
+          .from('queue_entries')
+          .update({ status: 'arrived' })
+          .eq('request_id', requestId);
+      }, 1000);
     }
 
-    return mapPickupRequest(row as DbPickupRequest);
+    if (params.type === 'early' && params.earlyPickupReason) {
+      const approvals = params.studentIds.map(studentId => ({
+        request_id:  requestId,
+        student_id:  studentId,
+        guardian_id: params.guardianId,
+        pickup_time: params.earlyPickupTime ?? '',
+        reason:      params.earlyPickupReason!,
+        note:        params.earlyPickupNote ?? null,
+        status:      'pending',
+      }));
+      await supabase.from('early_pickup_approvals').insert(approvals);
+    }
+
+    return {
+      id: requestId,
+      guardianId: params.guardianId,
+      studentIds: params.studentIds,
+      vehicleId: params.vehicleId,
+      type: params.type,
+      status: isImmediate ? 'arrived' : 'requested',
+      requestedAt: new Date().toISOString(),
+    };
+  }
+
+  async createBusRequest(studentIds: string[], busPlate?: string): Promise<void> {
+    const requestId = `bus-${Date.now()}`;
+    const arrivedAt = now12h();
+    const rows = studentIds.map(studentId => ({
+      request_id:    requestId,
+      student_id:    studentId,
+      guardian_id:   '',
+      vehicle_id:    null,
+      pickup_type:   'bus',
+      status:        'arrived',
+      arrived_at:    arrivedAt,
+      queue_position: 0,
+      bus_plate:     busPlate ?? null,
+    }));
+    const { error } = await supabase.from('queue_entries').insert(rows);
+    if (error) throw new Error(`createBusRequest: ${error.message}`);
   }
 
   async getActiveRequestsForGuardian(guardianId: string): Promise<PickupRequest[]> {
-    // "Active" means not yet released
-    const { data, error } = await supabase
-      .from('pickup_requests')
+    const { data } = await supabase
+      .from('queue_entries')
       .select('*')
       .eq('guardian_id', guardianId)
-      .neq('status', 'released')
-      .order('requested_at', { ascending: false });
+      .neq('status', 'released');
 
-    if (error) throw new Error(`getActiveRequestsForGuardian: ${error.message}`);
-    return (data ?? []).map((row) => mapPickupRequest(row as DbPickupRequest));
+    const grouped = new Map<string, any[]>();
+    for (const row of data ?? []) {
+      if (!grouped.has(row.request_id)) grouped.set(row.request_id, []);
+      grouped.get(row.request_id)!.push(row);
+    }
+
+    return Array.from(grouped.entries()).map(([requestId, rows]) => ({
+      id:          requestId,
+      guardianId,
+      studentIds:  rows.map(r => r.student_id),
+      vehicleId:   rows[0].vehicle_id ?? undefined,
+      type:        rows[0].pickup_type as PickupType,
+      status:      rows[0].status as PickupStatus,
+      requestedAt: rows[0].created_at,
+    }));
   }
 
   async cancelPickupRequest(requestId: string): Promise<void> {
-    const { error } = await supabase
-      .from('pickup_requests')
-      .delete()
-      .eq('id', requestId);
-
-    if (error) throw new Error(`cancelPickupRequest: ${error.message}`);
+    await supabase.from('queue_entries').delete().eq('request_id', requestId);
   }
 
-  // ── Staff: dismissal queue ─────────────────────────────────────────────────
+  // ── Staff: dismissal queue ────────────────────────────────────────────────
 
   async getDismissalQueue(): Promise<QueueEntry[]> {
-    // Return ALL pickup_requests (no status filter, no type filter).
-    // Order by arrived_at asc nulls last so the carline queue is in arrival order.
     const { data, error } = await supabase
-      .from('pickup_requests')
+      .from('queue_entries')
       .select('*')
-      .order('arrived_at', { ascending: true, nullsFirst: false });
-
+      .order('created_at', { ascending: true });
     if (error) throw new Error(`getDismissalQueue: ${error.message}`);
-
-    // Expand each request into one QueueEntry per student
-    const entries: QueueEntry[] = [];
-    for (const row of data ?? []) {
-      entries.push(...mapPickupRequestToQueueEntries(row as DbPickupRequest));
-    }
-    return entries;
+    return (data ?? []).map(mapQueueEntry);
   }
 
   async advanceRequestStatus(requestId: string): Promise<PickupRequest> {
-    // Fetch current status first
-    const { data: current, error: fetchError } = await supabase
-      .from('pickup_requests')
-      .select('status')
-      .eq('id', requestId)
-      .single();
-
-    if (fetchError || !current) {
-      throw new Error(`advanceRequestStatus: request not found — ${fetchError?.message}`);
-    }
-
-    const NEXT_STATUS: Record<string, PickupStatus> = {
-      arrived: 'called',
-      called: 'released',
-    };
-
-    const nextStatus = NEXT_STATUS[current.status];
-    if (!nextStatus) {
-      throw new Error(
-        `advanceRequestStatus: cannot advance from status "${current.status}". ` +
-        `Must be 'arrived' or 'called'.`,
-      );
-    }
-
-    const updateFields: Record<string, any> = { status: nextStatus };
-    if (nextStatus === 'called') updateFields.called_at = new Date().toISOString();
-    if (nextStatus === 'released') updateFields.released_at = new Date().toISOString();
-
-    const { data: updated, error: updateError } = await supabase
-      .from('pickup_requests')
-      .update(updateFields)
-      .eq('id', requestId)
-      .select()
-      .single();
-
-    if (updateError || !updated) {
-      throw new Error(`advanceRequestStatus: update failed — ${updateError?.message}`);
-    }
-
-    return mapPickupRequest(updated as DbPickupRequest);
+    const { data } = await supabase
+      .from('queue_entries').select('status').eq('request_id', requestId).limit(1);
+    const current = data?.[0]?.status as PickupStatus;
+    const NEXT: Record<string, PickupStatus> = { arrived: 'called', called: 'released' };
+    const next = NEXT[current];
+    if (!next) throw new Error(`Cannot advance from "${current}"`);
+    await supabase.from('queue_entries').update({ status: next }).eq('request_id', requestId);
+    return { id: requestId, guardianId: '', studentIds: [], type: 'carline', status: next, requestedAt: '' };
   }
 
-  // ── Staff: early pickup approvals ──────────────────────────────────────────
+  async setRequestStatus(requestId: string, status: PickupStatus): Promise<PickupRequest> {
+    await supabase.from('queue_entries').update({ status }).eq('request_id', requestId);
+    return { id: requestId, guardianId: '', studentIds: [], type: 'carline', status, requestedAt: '' };
+  }
+
+  async setGroupAndPosition(requestId: string, studentId: string, group: number, position: number): Promise<void> {
+    await supabase
+      .from('queue_entries')
+      .update({ group_num: group, position_num: position })
+      .eq('request_id', requestId)
+      .eq('student_id', studentId);
+  }
+
+  // ── Staff: early pickup approvals ─────────────────────────────────────────
 
   async getEarlyPickupApprovals(): Promise<EarlyPickupApproval[]> {
     const { data, error } = await supabase
-      .from('early_pickup_approvals')
-      .select('*')
-      .order('submitted_at', { ascending: false });
-
+      .from('early_pickup_approvals').select('*').order('submitted_at', { ascending: false });
     if (error) throw new Error(`getEarlyPickupApprovals: ${error.message}`);
-    return (data ?? []).map((row) => mapEarlyPickupApproval(row as DbEarlyPickupApproval));
+    return (data ?? []).map(mapApproval);
   }
 
   async approveEarlyPickup(approvalId: string, reviewerId: string): Promise<EarlyPickupApproval> {
-    const { data: row, error } = await supabase
+    const { data, error } = await supabase
       .from('early_pickup_approvals')
       .update({ status: 'approved', reviewed_by: reviewerId })
-      .eq('id', approvalId)
-      .select()
-      .single();
-
-    if (error || !row) throw new Error(`approveEarlyPickup: ${error?.message}`);
-    return mapEarlyPickupApproval(row as DbEarlyPickupApproval);
+      .eq('id', approvalId).select().single();
+    if (error || !data) throw new Error(`approveEarlyPickup: ${error?.message}`);
+    return mapApproval(data);
   }
 
-  async denyEarlyPickup(
-    approvalId: string,
-    reviewerId: string,
-    note: string,
-  ): Promise<EarlyPickupApproval> {
-    const { data: row, error } = await supabase
+  async denyEarlyPickup(approvalId: string, reviewerId: string, note: string): Promise<EarlyPickupApproval> {
+    const { data, error } = await supabase
       .from('early_pickup_approvals')
       .update({ status: 'denied', reviewed_by: reviewerId, denial_note: note })
-      .eq('id', approvalId)
-      .select()
-      .single();
-
-    if (error || !row) throw new Error(`denyEarlyPickup: ${error?.message}`);
-    return mapEarlyPickupApproval(row as DbEarlyPickupApproval);
+      .eq('id', approvalId).select().single();
+    if (error || !data) throw new Error(`denyEarlyPickup: ${error?.message}`);
+    return mapApproval(data);
   }
 
-  // ── Notifications ──────────────────────────────────────────────────────────
+  // ── Notifications ─────────────────────────────────────────────────────────
 
   async getNotifications(guardianId: string): Promise<Notification[]> {
-    const { data, error } = await supabase
-      .from('notifications')
-      .select('*')
-      .eq('guardian_id', guardianId)
+    const { data } = await supabase
+      .from('notifications').select('*').eq('guardian_id', guardianId)
       .order('created_at', { ascending: false });
-
-    if (error) throw new Error(`getNotifications: ${error.message}`);
-    return (data ?? []).map((row) => mapNotification(row as DbNotification));
+    return (data ?? []).map((r: any) => ({
+      id: r.id, type: r.type, title: r.title, body: r.body,
+      targetStudentId: r.target_student_id ?? undefined,
+      createdAt: r.created_at, read: r.read,
+    }));
   }
 
   async markNotificationRead(notificationId: string): Promise<void> {
-    const { error } = await supabase
-      .from('notifications')
-      .update({ read: true })
-      .eq('id', notificationId);
-
-    if (error) throw new Error(`markNotificationRead: ${error.message}`);
+    await supabase.from('notifications').update({ read: true }).eq('id', notificationId);
   }
 
-  // ── Real-time subscriptions ────────────────────────────────────────────────
+  // ── Real-time subscriptions ───────────────────────────────────────────────
 
   subscribeToQueueChanges(callback: (queue: QueueEntry[]) => void): () => void {
-    // Initial fetch
     this.getDismissalQueue().then(callback).catch(console.error);
 
-    // Subscribe to any INSERT, UPDATE, or DELETE on pickup_requests.
-    // We re-fetch the full queue on every change rather than mapping the
-    // Realtime payload directly — this keeps the queue consistent with DB state
-    // and handles edge cases like multi-row batch updates.
     const channel = supabase
-      .channel('queue-changes')
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'pickup_requests' },
-        () => {
-          this.getDismissalQueue().then(callback).catch(console.error);
-        },
-      )
+      .channel('queue_entries_all')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'queue_entries' }, () => {
+        this.getDismissalQueue().then(callback).catch(console.error);
+      })
       .subscribe();
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    return () => { supabase.removeChannel(channel); };
   }
 
-  subscribeToRequestStatus(
-    requestId: string,
-    callback: (status: PickupStatus) => void,
-  ): () => void {
-    // Emit current status immediately
-    void Promise.resolve(
-      supabase
-        .from('pickup_requests')
-        .select('status')
-        .eq('id', requestId)
-        .single(),
-    ).then(({ data }) => {
-      if (data?.status) callback(data.status as PickupStatus);
-    }).catch(console.error);
+  subscribeToRequestStatus(requestId: string, callback: (status: PickupStatus) => void): () => void {
+    supabase
+      .from('queue_entries').select('status').eq('request_id', requestId).limit(1)
+      .then(({ data }) => { if (data?.[0]) callback(data[0].status as PickupStatus); });
 
-    // Subscribe to UPDATE events for this specific request
     const channel = supabase
-      .channel(`request-status-${requestId}`)
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'pickup_requests',
-          filter: `id=eq.${requestId}`,
-        },
+      .channel(`req_status_${requestId}`)
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'queue_entries' },
         (payload) => {
-          const newStatus = (payload.new as { status: PickupStatus }).status;
-          if (newStatus) callback(newStatus);
-        },
-      )
+          if (payload.new?.request_id === requestId && payload.new?.status) {
+            callback(payload.new.status as PickupStatus);
+          }
+        })
       .subscribe();
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    return () => { supabase.removeChannel(channel); };
   }
 
-  // ── Private helpers ────────────────────────────────────────────────────────
+  // ── Private helpers ───────────────────────────────────────────────────────
 
-  private async _getStudentIdsForGuardian(guardianId: string): Promise<string[]> {
-    const { data, error } = await supabase
-      .from('guardian_students')
-      .select('student_id')
-      .eq('guardian_id', guardianId);
-
-    if (error) return [];
-    return (data ?? []).map((row) => row.student_id);
+  private async _studentIdsFor(guardianId: string): Promise<string[]> {
+    const { data } = await supabase
+      .from('guardian_students').select('student_id').eq('guardian_id', guardianId);
+    return (data ?? []).map((r: any) => r.student_id);
   }
 }

@@ -7,7 +7,7 @@
 //   3. Update the dataSource line accordingly
 // ══════════════════════════════════════════════════════════════════
 
-import { MockDataSource } from './MockDataSource';
+import { SupabaseDataSource } from './SupabaseDataSource';
 import type { DataSource } from './DataSource';
 
-export const dataSource: DataSource = new MockDataSource();
+export const dataSource: DataSource = new SupabaseDataSource();
