@@ -435,8 +435,8 @@ const styles = StyleSheet.create({
   searchIcon: { fontSize: 16 },
   searchInput: { flex: 1, paddingVertical: 10, fontSize: 15, color: '#15233A' },
 
-  typeScroll: { marginBottom: 10, marginHorizontal: -16, paddingHorizontal: 16 },
-  typeWrap: { flexDirection: 'row', gap: 6, paddingRight: 24, paddingVertical: 4 },
+  typeScroll: { height: 44, marginBottom: 10, marginHorizontal: -16, paddingHorizontal: 16 },
+  typeWrap: { flexDirection: 'row', gap: 6, paddingRight: 24, alignItems: 'center' },
   filterChip: {
     flexDirection: 'row', alignItems: 'center', gap: 4,
     paddingHorizontal: 12, paddingVertical: 6,
@@ -445,8 +445,8 @@ const styles = StyleSheet.create({
   filterChipActive: { backgroundColor: '#1F3A5F', borderColor: '#1F3A5F' },
   filterChipIcon: { fontSize: 13 },
 
-  gradeScroll: { marginBottom: 12, marginHorizontal: -16, paddingHorizontal: 16 },
-  filterWrap: { flexDirection: 'row', gap: 6, paddingRight: 24, paddingVertical: 4 },
+  gradeScroll: { height: 44, marginBottom: 12, marginHorizontal: -16, paddingHorizontal: 16 },
+  filterWrap: { flexDirection: 'row', gap: 6, paddingRight: 24, alignItems: 'center' },
   gradeChip: {
     paddingHorizontal: 12, paddingVertical: 6,
     backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#D8C9A8', borderRadius: 20,

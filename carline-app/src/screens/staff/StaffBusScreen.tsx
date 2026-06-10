@@ -199,8 +199,8 @@ const styles = StyleSheet.create({
   searchIcon: { fontSize: 16 },
   searchInput: { flex: 1, paddingVertical: 10, fontSize: 15, color: '#15233A' },
 
-  filterScroll: { marginBottom: 14, marginHorizontal: -16, paddingHorizontal: 16 },
-  filterWrap: { flexDirection: 'row', gap: 4, paddingRight: 24, paddingVertical: 4 },
+  filterScroll: { height: 44, marginBottom: 14, marginHorizontal: -16, paddingHorizontal: 16 },
+  filterWrap: { flexDirection: 'row', gap: 4, paddingRight: 24, alignItems: 'center' },
   filterChip: {
     paddingHorizontal: 11, paddingVertical: 5,
     backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#D8C9A8', borderRadius: 16,
