@@ -181,7 +181,7 @@ const styles = StyleSheet.create({
   searchIcon: { fontSize: 16 },
   searchInput: { flex: 1, paddingVertical: 10, fontSize: 15, color: '#15233A' },
 
-  filterScroll: { maxHeight: 56, marginBottom: 12, marginHorizontal: -16, paddingHorizontal: 16 },
+  filterScroll: { maxHeight: 70, marginBottom: 12, marginHorizontal: -16, paddingHorizontal: 16 },
   filterWrap: { flexDirection: 'row', gap: 4, paddingRight: 24 },
   filterChip: {
     paddingHorizontal: 12, paddingVertical: 6,
