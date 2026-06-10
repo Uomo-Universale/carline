@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   View, Text, TouchableOpacity, FlatList, TextInput,
-  StyleSheet, SafeAreaView, StatusBar, Modal, Pressable, ScrollView,
+  StyleSheet, SafeAreaView, StatusBar, Modal, Pressable,
 } from 'react-native';
 import { LicensePlate } from '../../components/ui/LicensePlate';
 import { dataSource } from '../../data/provider';
@@ -266,7 +266,7 @@ export function StaffQueueScreen() {
       </View>
 
       {/* Type filter */}
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.typeScroll} contentContainerStyle={styles.typeWrap}>
+      <View style={styles.typeFilterRow}>
         {TYPE_FILTERS.map(t => (
           <TouchableOpacity
             key={t.key}
@@ -277,10 +277,10 @@ export function StaffQueueScreen() {
             <Text style={[styles.filterText, typeFilter === t.key && styles.filterTextActive]}>{t.label}</Text>
           </TouchableOpacity>
         ))}
-      </ScrollView>
+      </View>
 
       {/* Grade filter */}
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.gradeScroll} contentContainerStyle={styles.filterWrap}>
+      <View style={styles.gradeFilterRow}>
         {GRADE_FILTERS.map(g => (
           <TouchableOpacity
             key={g}
@@ -290,7 +290,7 @@ export function StaffQueueScreen() {
             <Text style={[styles.filterText, gradeFilter === g && styles.filterTextActive]}>{g}</Text>
           </TouchableOpacity>
         ))}
-      </ScrollView>
+      </View>
 
       <FlatList
         data={sortedActive}
@@ -435,8 +435,10 @@ const styles = StyleSheet.create({
   searchIcon: { fontSize: 16 },
   searchInput: { flex: 1, paddingVertical: 10, fontSize: 15, color: '#15233A' },
 
-  typeScroll: { height: 44, marginBottom: 10, marginHorizontal: -16, paddingHorizontal: 16 },
-  typeWrap: { flexDirection: 'row', gap: 6, paddingRight: 24, alignItems: 'flex-start', paddingVertical: 4 },
+  typeFilterRow: {
+    flexDirection: 'row', flexShrink: 0, flexWrap: 'wrap', gap: 6,
+    paddingHorizontal: 20, marginBottom: 10,
+  },
   filterChip: {
     height: 36, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 4,
     paddingHorizontal: 12,
@@ -445,8 +447,10 @@ const styles = StyleSheet.create({
   filterChipActive: { backgroundColor: '#1F3A5F', borderColor: '#1F3A5F' },
   filterChipIcon: { fontSize: 13 },
 
-  gradeScroll: { height: 44, marginBottom: 12, marginHorizontal: -16, paddingHorizontal: 16 },
-  filterWrap: { flexDirection: 'row', gap: 6, paddingRight: 24, alignItems: 'flex-start', paddingVertical: 4 },
+  gradeFilterRow: {
+    flexDirection: 'row', flexShrink: 0, flexWrap: 'wrap', gap: 6,
+    paddingHorizontal: 20, marginBottom: 12,
+  },
   gradeChip: {
     height: 36, alignItems: 'center', justifyContent: 'center',
     paddingHorizontal: 12,

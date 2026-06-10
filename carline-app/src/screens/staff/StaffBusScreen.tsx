@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   View, Text, TouchableOpacity, FlatList, TextInput,
-  StyleSheet, SafeAreaView, StatusBar, ScrollView,
+  StyleSheet, SafeAreaView, StatusBar,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { KidPortrait } from '../../components/ui/KidPortrait';
@@ -111,7 +111,7 @@ export function StaffBusScreen() {
       </View>
 
       {/* Grade filter */}
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filterScroll} contentContainerStyle={styles.filterWrap}>
+      <View style={styles.filterRow}>
         {GRADE_FILTERS.map(g => (
           <TouchableOpacity
             key={g}
@@ -121,7 +121,7 @@ export function StaffBusScreen() {
             <Text style={[styles.filterText, gradeFilter === g && styles.filterTextActive]}>{g}</Text>
           </TouchableOpacity>
         ))}
-      </ScrollView>
+      </View>
 
       {/* Student list */}
       <FlatList
@@ -199,8 +199,10 @@ const styles = StyleSheet.create({
   searchIcon: { fontSize: 16 },
   searchInput: { flex: 1, paddingVertical: 10, fontSize: 15, color: '#15233A' },
 
-  filterScroll: { height: 44, marginBottom: 14, marginHorizontal: -16, paddingHorizontal: 16 },
-  filterWrap: { flexDirection: 'row', gap: 6, paddingRight: 24, alignItems: 'flex-start', paddingVertical: 4 },
+  filterRow: {
+    flexDirection: 'row', flexShrink: 0, flexWrap: 'wrap', gap: 6,
+    paddingHorizontal: 20, marginBottom: 14,
+  },
   filterChip: {
     height: 36, alignItems: 'center', justifyContent: 'center',
     paddingHorizontal: 12,
