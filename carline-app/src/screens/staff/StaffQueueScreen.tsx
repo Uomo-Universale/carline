@@ -435,27 +435,27 @@ const styles = StyleSheet.create({
   searchIcon: { fontSize: 16 },
   searchInput: { flex: 1, paddingVertical: 10, fontSize: 15, color: '#15233A' },
 
-  typeScroll: { maxHeight: 75, marginBottom: 14, marginHorizontal: -16, paddingHorizontal: 16 },
-  typeWrap: { flexDirection: 'row', gap: 3, paddingRight: 40 },
+  typeScroll: { maxHeight: 50, marginBottom: 12, marginHorizontal: -16, paddingHorizontal: 16 },
+  typeWrap: { flexDirection: 'row', gap: 4, paddingRight: 24 },
   filterChip: {
-    flexDirection: 'row', alignItems: 'center', gap: 2,
-    paddingHorizontal: 9, paddingVertical: 3,
+    flexDirection: 'row', alignItems: 'center', gap: 3,
+    paddingHorizontal: 11, paddingVertical: 5,
     backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#D8C9A8', borderRadius: 16,
   },
   filterChipActive: { backgroundColor: '#1F3A5F', borderColor: '#1F3A5F' },
-  filterChipIcon: { fontSize: 11 },
+  filterChipIcon: { fontSize: 12 },
 
-  gradeScroll: { maxHeight: 75, marginBottom: 20, marginHorizontal: -16, paddingHorizontal: 16 },
-  filterWrap: { flexDirection: 'row', gap: 3, paddingRight: 40 },
+  gradeScroll: { maxHeight: 50, marginBottom: 14, marginHorizontal: -16, paddingHorizontal: 16 },
+  filterWrap: { flexDirection: 'row', gap: 4, paddingRight: 24 },
   gradeChip: {
-    paddingHorizontal: 9, paddingVertical: 3,
+    paddingHorizontal: 11, paddingVertical: 5,
     backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#D8C9A8', borderRadius: 16,
   },
   gradeChipActive: { backgroundColor: '#1F3A5F', borderColor: '#1F3A5F' },
-  filterText: { fontSize: 11, fontWeight: '600', color: '#3B4A66' },
+  filterText: { fontSize: 12, fontWeight: '600', color: '#3B4A66' },
   filterTextActive: { color: '#FFFFFF' },
 
-  list: { paddingHorizontal: 16, paddingTop: 20, paddingBottom: 32, gap: 8 },
+  list: { paddingHorizontal: 16, paddingTop: 8, paddingBottom: 32, gap: 8 },
 
   row: {
     flexDirection: 'row', alignItems: 'flex-start', gap: 10,

@@ -199,17 +199,17 @@ const styles = StyleSheet.create({
   searchIcon: { fontSize: 16 },
   searchInput: { flex: 1, paddingVertical: 10, fontSize: 15, color: '#15233A' },
 
-  filterScroll: { maxHeight: 80, marginBottom: 20, marginHorizontal: -16, paddingHorizontal: 16 },
+  filterScroll: { maxHeight: 50, marginBottom: 14, marginHorizontal: -16, paddingHorizontal: 16 },
   filterWrap: { flexDirection: 'row', gap: 4, paddingRight: 24 },
   filterChip: {
-    paddingHorizontal: 12, paddingVertical: 6,
-    backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#D8C9A8', borderRadius: 18,
+    paddingHorizontal: 11, paddingVertical: 5,
+    backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#D8C9A8', borderRadius: 16,
   },
   filterChipActive: { backgroundColor: '#1F3A5F', borderColor: '#1F3A5F' },
   filterText: { fontSize: 12, fontWeight: '600', color: '#3B4A66' },
   filterTextActive: { color: '#FFFFFF' },
 
-  listContent: { paddingHorizontal: 16, paddingTop: 20, paddingBottom: 100, gap: 0 },
+  listContent: { paddingHorizontal: 16, paddingTop: 8, paddingBottom: 100, gap: 0 },
   studentRow: {
     flexDirection: 'row', alignItems: 'center', gap: 12,
     paddingVertical: 12, paddingHorizontal: 12,
