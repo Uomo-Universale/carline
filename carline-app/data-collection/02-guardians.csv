@@ -1,0 +1,4 @@
+id,first_name,last_name,phone,email,is_primary
+g1,FirstName,LastName,+1 (917) 555-0001,parent@email.com,true
+g2,FirstName,LastName,+1 (917) 555-0002,parent2@email.com,true
+g3,FirstName,LastName,+1 (917) 555-0003,parent3@email.com,false

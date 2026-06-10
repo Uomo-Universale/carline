@@ -1,0 +1,6 @@
+id,first_name,last_name,grade,homeroom,teacher_name,tint_index
+s1,FirstName,LastName,Kindergarten,K-A,Ms. Smith,0
+s2,FirstName,LastName,1st grade,1-A,Mrs. Jones,1
+s3,FirstName,LastName,2nd grade,2-A,Mrs. Brown,2
+s4,FirstName,LastName,3rd grade,3-A,Mrs. Cohen,3
+s5,FirstName,LastName,4th grade,4-A,Mr. Friedman,4

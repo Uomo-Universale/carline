@@ -1,0 +1,4 @@
+id,guardian_id,year,make,model,color,color_hex,plate,state,is_active
+v1,g1,2022,Subaru,Outback,Forest Green,#2F5A3A,ABC 1234,NY,true
+v2,g1,2019,Honda,Odyssey,White,#F2EEE5,XYZ 5678,NY,false
+v3,g2,2021,Toyota,Highlander,Black,#1A1A1A,DEF 9012,NY,true

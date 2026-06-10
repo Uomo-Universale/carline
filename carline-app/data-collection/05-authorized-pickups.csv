@@ -1,0 +1,5 @@
+id,guardian_id,name,relation,is_primary,student_ids
+ap1,g1,Sarah Levin,Mother,true,"{s1,s2}"
+ap2,g1,David Levin,Father,true,"{s1,s2}"
+ap3,g1,Rachel Adler,Aunt,false,"{s1}"
+ap4,g2,Mike Cohen,Grandfather,false,"{s3}"
