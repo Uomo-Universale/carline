@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View, Text, TouchableOpacity, FlatList,
   StyleSheet, SafeAreaView, StatusBar, ScrollView,
 } from 'react-native';
 import { useStore } from '../../store';
-import type { PickupType } from '../../models';
+import { dataSource } from '../../data/provider';
+import type { PickupType, Student } from '../../models';
 
 const TYPE_FILTERS: { key: string; label: string; icon: string; type?: PickupType }[] = [
   { key: 'All',   label: 'All',     icon: '📋' },
@@ -24,6 +25,26 @@ const TYPE_COLORS: Record<string, string> = {
 export function StaffReportingScreen() {
   const { queue } = useStore();
   const [typeFilter, setTypeFilter] = useState('All');
+  const [studentMap, setStudentMap] = useState<Record<string, Student>>({});
+
+  useEffect(() => {
+    let mounted = true;
+    const enrichStudents = async () => {
+      const uniqueIds = [...new Set(queue.map(e => e.studentId))];
+      const students = await Promise.all(
+        uniqueIds.map(id => dataSource.getStudentById(id))
+      );
+      if (mounted) {
+        const map: Record<string, Student> = {};
+        uniqueIds.forEach((id, idx) => {
+          if (students[idx]) map[id] = students[idx];
+        });
+        setStudentMap(map);
+      }
+    };
+    enrichStudents();
+    return () => { mounted = false; };
+  }, [queue]);
 
   const selectedType = TYPE_FILTERS.find(t => t.key === typeFilter)?.type;
 
@@ -83,9 +104,8 @@ export function StaffReportingScreen() {
         <View style={styles.reconcileBox}>
           <Text style={styles.reconcileTitle}>Reconciliation</Text>
           <Text style={styles.reconcileText}>
-            {allReleased.length} of {queue.length} students dismissed.
-            {inProgress.length > 0
-              ? ` ${inProgress.length} still in progress.`
+            {allReleased.length} released. {inProgress.length > 0
+              ? `${inProgress.length} in progress (check Queue tab).`
               : ' All students accounted for.'}
           </Text>
         </View>
@@ -121,7 +141,11 @@ export function StaffReportingScreen() {
                   <Text style={styles.listNumText}>{idx + 1}</Text>
                 </View>
                 <View style={styles.listInfo}>
-                  <Text style={styles.listName}>{entry.studentId}</Text>
+                  <Text style={styles.listName}>
+                    {studentMap[entry.studentId]
+                      ? `${studentMap[entry.studentId].firstName} ${studentMap[entry.studentId].lastName}`
+                      : entry.studentId}
+                  </Text>
                   <Text style={styles.listTime}>{entry.arrivedAt}</Text>
                 </View>
                 <View style={[styles.listTypeBadge, { backgroundColor: (TYPE_COLORS[entry.pickupType ?? 'carline'] ?? '#7A8699') + '22' }]}>
