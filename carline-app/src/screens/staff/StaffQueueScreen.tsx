@@ -445,7 +445,7 @@ const styles = StyleSheet.create({
   filterChipActive: { backgroundColor: '#1F3A5F', borderColor: '#1F3A5F' },
   filterChipIcon: { fontSize: 11 },
 
-  gradeScroll: { maxHeight: 75, marginBottom: 10, marginHorizontal: -16, paddingHorizontal: 16 },
+  gradeScroll: { maxHeight: 75, marginBottom: 20, marginHorizontal: -16, paddingHorizontal: 16 },
   filterWrap: { flexDirection: 'row', gap: 3, paddingRight: 40 },
   gradeChip: {
     paddingHorizontal: 9, paddingVertical: 3,
