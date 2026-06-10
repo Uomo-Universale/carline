@@ -436,20 +436,21 @@ const styles = StyleSheet.create({
   searchInput: { flex: 1, paddingVertical: 10, fontSize: 15, color: '#15233A' },
 
   typeScroll: { height: 44, marginBottom: 10, marginHorizontal: -16, paddingHorizontal: 16 },
-  typeWrap: { flexDirection: 'row', gap: 6, paddingRight: 24, alignItems: 'center' },
+  typeWrap: { flexDirection: 'row', gap: 6, paddingRight: 24, alignItems: 'flex-start', paddingVertical: 4 },
   filterChip: {
-    flexDirection: 'row', alignItems: 'center', gap: 4,
-    paddingHorizontal: 12, paddingVertical: 6,
-    backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#D8C9A8', borderRadius: 20,
+    height: 36, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 4,
+    paddingHorizontal: 12,
+    backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#D8C9A8', borderRadius: 18,
   },
   filterChipActive: { backgroundColor: '#1F3A5F', borderColor: '#1F3A5F' },
   filterChipIcon: { fontSize: 13 },
 
   gradeScroll: { height: 44, marginBottom: 12, marginHorizontal: -16, paddingHorizontal: 16 },
-  filterWrap: { flexDirection: 'row', gap: 6, paddingRight: 24, alignItems: 'center' },
+  filterWrap: { flexDirection: 'row', gap: 6, paddingRight: 24, alignItems: 'flex-start', paddingVertical: 4 },
   gradeChip: {
-    paddingHorizontal: 12, paddingVertical: 6,
-    backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#D8C9A8', borderRadius: 20,
+    height: 36, alignItems: 'center', justifyContent: 'center',
+    paddingHorizontal: 12,
+    backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#D8C9A8', borderRadius: 18,
   },
   gradeChipActive: { backgroundColor: '#1F3A5F', borderColor: '#1F3A5F' },
   filterText: { fontSize: 13, fontWeight: '600', color: '#3B4A66' },

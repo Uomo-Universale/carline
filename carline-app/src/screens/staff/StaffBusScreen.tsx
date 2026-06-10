@@ -200,13 +200,14 @@ const styles = StyleSheet.create({
   searchInput: { flex: 1, paddingVertical: 10, fontSize: 15, color: '#15233A' },
 
   filterScroll: { height: 44, marginBottom: 14, marginHorizontal: -16, paddingHorizontal: 16 },
-  filterWrap: { flexDirection: 'row', gap: 4, paddingRight: 24, alignItems: 'center' },
+  filterWrap: { flexDirection: 'row', gap: 6, paddingRight: 24, alignItems: 'flex-start', paddingVertical: 4 },
   filterChip: {
-    paddingHorizontal: 11, paddingVertical: 5,
-    backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#D8C9A8', borderRadius: 16,
+    height: 36, alignItems: 'center', justifyContent: 'center',
+    paddingHorizontal: 12,
+    backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#D8C9A8', borderRadius: 18,
   },
   filterChipActive: { backgroundColor: '#1F3A5F', borderColor: '#1F3A5F' },
-  filterText: { fontSize: 12, fontWeight: '600', color: '#3B4A66' },
+  filterText: { fontSize: 13, fontWeight: '600', color: '#3B4A66' },
   filterTextActive: { color: '#FFFFFF' },
 
   listContent: { paddingHorizontal: 16, paddingTop: 8, paddingBottom: 100, gap: 0 },
