@@ -430,7 +430,7 @@ const styles = StyleSheet.create({
   searchInput: { flex: 1, paddingVertical: 10, fontSize: 15, color: '#15233A' },
 
   typeScroll: { maxHeight: 42, marginBottom: 14, marginHorizontal: -16, paddingHorizontal: 16 },
-  typeWrap: { flexDirection: 'row', gap: 3, paddingRight: 16 },
+  typeWrap: { flexDirection: 'row', gap: 3, paddingRight: 24 },
   filterChip: {
     flexDirection: 'row', alignItems: 'center', gap: 2,
     paddingHorizontal: 9, paddingVertical: 3,
@@ -440,7 +440,7 @@ const styles = StyleSheet.create({
   filterChipIcon: { fontSize: 11 },
 
   gradeScroll: { maxHeight: 42, marginBottom: 10, marginHorizontal: -16, paddingHorizontal: 16 },
-  filterWrap: { flexDirection: 'row', gap: 3, paddingRight: 16 },
+  filterWrap: { flexDirection: 'row', gap: 3, paddingRight: 24 },
   gradeChip: {
     paddingHorizontal: 9, paddingVertical: 3,
     backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#D8C9A8', borderRadius: 16,
