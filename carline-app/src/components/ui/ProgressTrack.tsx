@@ -2,17 +2,15 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import type { PickupStatus } from '../../models';
 
-const STATUS_ORDER: PickupStatus[] = ['requested', 'arrived', 'called', 'released'];
+const STATUS_ORDER: PickupStatus[] = ['arrived', 'called', 'released'];
 const STATUS_DOTS: Record<string, string> = {
-  requested: '#7A8699',
   arrived:   '#E8A33D',
   called:    '#C97A1F',
   released:  '#2F6B5A',
 };
 const STATUS_LABELS: Record<string, { title: string; sub: string }> = {
-  requested: { title: 'Requested',  sub: 'We told the school you\'re on your way' },
   arrived:   { title: 'Arrived',    sub: 'Your car is in line' },
-  called:    { title: 'Called',     sub: 'Mrs. Cohen is walking your child out' },
+  called:    { title: 'Called out', sub: 'Your child is on their way to the curb' },
   released:  { title: 'Released',   sub: 'Your child is in your car. Drive safe!' },
 };
 

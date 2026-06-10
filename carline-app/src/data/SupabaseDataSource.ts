@@ -169,30 +169,19 @@ export class SupabaseDataSource implements DataSource {
   async createPickupRequest(params: CreatePickupRequestParams): Promise<PickupRequest> {
     const requestId = `req-${Date.now()}`;
     const arrivedAt = now12h();
-    const isImmediate = params.type === 'walkin' || params.type === 'early';
-
     const rows = params.studentIds.map(studentId => ({
       request_id:    requestId,
       student_id:    studentId,
       guardian_id:   params.guardianId,
       vehicle_id:    params.vehicleId ?? null,
       pickup_type:   params.type,
-      status:        isImmediate ? 'arrived' : 'requested',
+      status:        'arrived',
       arrived_at:    arrivedAt,
       queue_position: 0,
     }));
 
     const { error } = await supabase.from('queue_entries').insert(rows);
     if (error) throw new Error(`createPickupRequest: ${error.message}`);
-
-    if (!isImmediate) {
-      setTimeout(async () => {
-        await supabase
-          .from('queue_entries')
-          .update({ status: 'arrived' })
-          .eq('request_id', requestId);
-      }, 1000);
-    }
 
     if (params.type === 'early' && params.earlyPickupReason) {
       const approvals = params.studentIds.map(studentId => ({
@@ -213,7 +202,7 @@ export class SupabaseDataSource implements DataSource {
       studentIds: params.studentIds,
       vehicleId: params.vehicleId,
       type: params.type,
-      status: isImmediate ? 'arrived' : 'requested',
+      status: 'arrived' as PickupStatus,
       requestedAt: new Date().toISOString(),
     };
   }

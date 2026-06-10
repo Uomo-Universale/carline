@@ -2,7 +2,7 @@
 // FERPA notice: In production, all student data must be sourced through
 // school-issued credentials with explicit data-handling agreements in place.
 
-export type PickupStatus = 'requested' | 'arrived' | 'called' | 'released';
+export type PickupStatus = 'arrived' | 'called' | 'released';
 export type PickupType = 'carline' | 'walkin' | 'early' | 'bus' | 'message';
 export type EarlyPickupReason = 'doctor' | 'family' | 'religious' | 'other';
 export type RequestStatus = 'pending' | 'approved' | 'denied';

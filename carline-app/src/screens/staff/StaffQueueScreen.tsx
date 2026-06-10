@@ -14,7 +14,7 @@ type QueueRow = QueueEntry & {
   vehicle?: Vehicle | null;
 };
 
-const STATUS_ORDER = { called: 0, arrived: 1, requested: 2, released: 3 };
+const STATUS_ORDER = { called: 0, arrived: 1, released: 2 };
 const GRADE_FILTERS = ['All', 'K', '1st', '2nd', '3rd', '4th', '5th'];
 
 const TYPE_FILTERS: { key: string; label: string; icon: string; type?: PickupType }[] = [
@@ -28,20 +28,17 @@ const TYPE_FILTERS: { key: string; label: string; icon: string; type?: PickupTyp
 const STATUS_COLORS: Record<string, string> = {
   called:    '#F8E0BF',
   arrived:   '#E5EAF1',
-  requested: '#FBF5EA',
   released:  '#DCEBE3',
 };
 
 const STATUS_DOT: Record<string, string> = {
   called:    '#C97A1F',
   arrived:   '#2A6FA3',
-  requested: '#7A8699',
   released:  '#2F6B5A',
 };
 
-const ALL_STATUSES: PickupStatus[] = ['requested', 'arrived', 'called', 'released'];
+const ALL_STATUSES: PickupStatus[] = ['arrived', 'called', 'released'];
 const STATUS_LABELS: Record<PickupStatus, string> = {
-  requested: 'Requested',
   arrived:   'Arrived',
   called:    'Called out',
   released:  'Released',

@@ -10,14 +10,12 @@ import { dataSource } from '../../data/provider';
 import type { PickupStatus } from '../../models';
 
 const STATUS_COPY: Record<PickupStatus, { headline: string; body: string; icon: string }> = {
-  requested: { headline: 'We told the school', body: 'Office sees your request. Pull into the carline when you arrive.', icon: '🕐' },
-  arrived:   { headline: "You're in the queue", body: 'Position 4 of 7. Your child\'s teacher has been notified.', icon: '🚗' },
+  arrived:   { headline: "You're in the queue", body: "Hold tight — a staff member will call your child to the curb shortly.", icon: '🚗' },
   called:    { headline: 'Your child is coming out', body: 'Their teacher is walking them to the curb now.', icon: '📣' },
   released:  { headline: 'Your child is in your car', body: 'Drive safe! Have a great evening.', icon: '✅' },
 };
 
 const BG_COLORS: Record<PickupStatus, string> = {
-  requested: '#FBF5EA',
   arrived:   '#FBF5EA',
   called:    '#F8E0BF',
   released:  '#DCEBE3',
@@ -27,7 +25,7 @@ export function LiveStatusScreen() {
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
   const { requestId } = route.params ?? {};
-  const [status, setStatus] = useState<PickupStatus>('requested');
+  const [status, setStatus] = useState<PickupStatus>('arrived');
   const pulseAnim = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
@@ -50,7 +48,6 @@ export function LiveStatusScreen() {
 
   const copy = STATUS_COPY[status];
   const dotColor = {
-    requested: '#7A8699',
     arrived:   '#E8A33D',
     called:    '#C97A1F',
     released:  '#2F6B5A',
@@ -103,7 +100,7 @@ export function LiveStatusScreen() {
         ) : (
           <>
             <Button variant="secondary" size="lg" block>Message the office</Button>
-            {(status === 'requested' || status === 'arrived') && (
+            {status === 'arrived' && (
               <TouchableOpacity
                 style={styles.cancelBtn}
                 onPress={async () => {

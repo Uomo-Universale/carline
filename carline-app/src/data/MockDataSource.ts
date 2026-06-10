@@ -163,26 +163,14 @@ export class MockDataSource implements DataSource {
         guardianId: params.guardianId,
         vehicleId: params.vehicleId,
         pickupType: params.type,
-        status: 'requested' as PickupStatus,
+        status: 'arrived' as PickupStatus,
         arrivedAt: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }),
         queuePosition: _queueEntries.filter(q => q.status !== 'released').length + 1,
       }));
-
-      if (params.type === 'carline') {
-        // Simulate driving into the lot — arrives after 1s
-        setTimeout(() => {
-          newEntries.forEach(e => { e.status = 'arrived'; _queueEntries.push(e); });
-          notifyQueueListeners();
-          const reqListeners = _statusListeners.get(id);
-          if (reqListeners) reqListeners.forEach(fn => fn('arrived'));
-        }, 1000);
-      } else {
-        // Walk-in and early pickup: parent is physically present — arrived immediately
-        newEntries.forEach(e => { e.status = 'arrived'; _queueEntries.push(e); });
-        notifyQueueListeners();
-        const reqListeners = _statusListeners.get(id);
-        if (reqListeners) reqListeners.forEach(fn => fn('arrived'));
-      }
+      newEntries.forEach(e => { _queueEntries.push(e); });
+      notifyQueueListeners();
+      const reqListeners = _statusListeners.get(id);
+      if (reqListeners) reqListeners.forEach(fn => fn('arrived'));
     }
 
     return request;
