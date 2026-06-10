@@ -15,6 +15,7 @@ import { EarlyPickupScreen }        from './src/screens/parent/EarlyPickupScreen
 import { StaffQueueScreen }         from './src/screens/staff/StaffQueueScreen';
 import { StaffApprovalsScreen }     from './src/screens/staff/StaffApprovalsScreen';
 import { StaffReportingScreen }     from './src/screens/staff/StaffReportingScreen';
+import { StaffBusScreen }           from './src/screens/staff/StaffBusScreen';
 import { registerForPushNotifications } from './src/notifications';
 
 const Stack = createNativeStackNavigator();
@@ -106,6 +107,11 @@ function StaffTabs() {
         name="Reports"
         component={StaffReportingScreen}
         options={{ tabBarIcon: ({ focused }) => <TabIcon label="Reports" icon="📊" focused={focused} /> }}
+      />
+      <Tab.Screen
+        name="Bus"
+        component={StaffBusScreen}
+        options={{ tabBarIcon: ({ focused }) => <TabIcon label="Bus" icon="🚌" focused={focused} /> }}
       />
     </Tab.Navigator>
   );

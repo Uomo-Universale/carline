@@ -198,6 +198,23 @@ export class MockDataSource implements DataSource {
     notifyQueueListeners();
   }
 
+  async createBusRequest(studentIds: string[]): Promise<void> {
+    const id = `bus-${++_nextRequestId}`;
+    const now = new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+    const newEntries: QueueEntry[] = studentIds.map(studentId => ({
+      requestId: id,
+      studentId,
+      guardianId: '',
+      vehicleId: undefined,
+      pickupType: 'bus' as PickupStatus,
+      status: 'arrived' as PickupStatus,
+      arrivedAt: now,
+      queuePosition: 0,
+    }));
+    _queueEntries.push(...newEntries);
+    notifyQueueListeners();
+  }
+
   async getDismissalQueue() {
     return [..._queueEntries];
   }
