@@ -19,6 +19,7 @@ export function StaffBusScreen() {
   const [search, setSearch] = useState('');
   const [gradeFilter, setGradeFilter] = useState('All');
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [busPlate, setBusPlate] = useState('');
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -71,8 +72,9 @@ export function StaffBusScreen() {
     if (selectedIds.length === 0) return;
     setLoading(true);
     try {
-      await createBusRequest(selectedIds);
+      await createBusRequest(selectedIds, busPlate.trim() || undefined);
       setSelectedIds([]);
+      setBusPlate('');
       setSearch('');
       navigation.navigate('Queue');
     } catch (err) {
@@ -154,9 +156,17 @@ export function StaffBusScreen() {
         }
       />
 
-      {/* Load button */}
+      {/* Bus plate input and Load button */}
       {selectedIds.length > 0 && (
         <View style={styles.footer}>
+          <Text style={styles.plateLabel}>Bus license plate (optional)</Text>
+          <TextInput
+            style={styles.plateInput}
+            value={busPlate}
+            onChangeText={setBusPlate}
+            placeholder="e.g. BUS-001 or ABC 1234"
+            placeholderTextColor="#B0BAC9"
+          />
           <Button
             variant="primary"
             size="lg"
@@ -189,7 +199,7 @@ const styles = StyleSheet.create({
   searchIcon: { fontSize: 16 },
   searchInput: { flex: 1, paddingVertical: 10, fontSize: 15, color: '#15233A' },
 
-  filterScroll: { maxHeight: 70, marginBottom: 12, marginHorizontal: -16, paddingHorizontal: 16 },
+  filterScroll: { maxHeight: 80, marginBottom: 12, marginHorizontal: -16, paddingHorizontal: 16 },
   filterWrap: { flexDirection: 'row', gap: 4, paddingRight: 24 },
   filterChip: {
     paddingHorizontal: 12, paddingVertical: 6,
@@ -222,5 +232,11 @@ const styles = StyleSheet.create({
   empty: { paddingVertical: 40, alignItems: 'center' },
   emptyText: { fontSize: 15, color: '#7A8699' },
 
-  footer: { position: 'absolute', bottom: 0, left: 0, right: 0, padding: 20, backgroundColor: '#FBF5EA', borderTopWidth: 1, borderTopColor: '#ECE0C8' },
+  footer: { position: 'absolute', bottom: 0, left: 0, right: 0, padding: 20, backgroundColor: '#FBF5EA', borderTopWidth: 1, borderTopColor: '#ECE0C8', gap: 10 },
+  plateLabel: { fontSize: 12, fontWeight: '600', color: '#7A8699' },
+  plateInput: {
+    backgroundColor: '#FFFFFF', color: '#15233A',
+    borderWidth: 1, borderColor: '#D8C9A8', borderRadius: 10,
+    padding: 12, fontSize: 15, marginBottom: 6,
+  },
 });

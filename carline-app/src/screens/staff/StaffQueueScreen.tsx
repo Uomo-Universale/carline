@@ -199,6 +199,12 @@ export function StaffQueueScreen() {
               </View>
             </View>
 
+            {r.pickupType === 'bus' && r.busPlate && (
+              <View style={styles.busPlateRow}>
+                <Text style={styles.busPlateLabel}>🚌 Bus:</Text>
+                <Text style={styles.busPlateText}>{r.busPlate}</Text>
+              </View>
+            )}
             {r.vehicle && (
               <View style={styles.vehicleRow}>
                 <View style={[styles.colorSwatch, { backgroundColor: r.vehicle.colorHex }]} />
@@ -429,7 +435,7 @@ const styles = StyleSheet.create({
   searchIcon: { fontSize: 16 },
   searchInput: { flex: 1, paddingVertical: 10, fontSize: 15, color: '#15233A' },
 
-  typeScroll: { maxHeight: 50, marginBottom: 14, marginHorizontal: -16, paddingHorizontal: 16 },
+  typeScroll: { maxHeight: 60, marginBottom: 14, marginHorizontal: -16, paddingHorizontal: 16 },
   typeWrap: { flexDirection: 'row', gap: 3, paddingRight: 40 },
   filterChip: {
     flexDirection: 'row', alignItems: 'center', gap: 2,
@@ -439,7 +445,7 @@ const styles = StyleSheet.create({
   filterChipActive: { backgroundColor: '#1F3A5F', borderColor: '#1F3A5F' },
   filterChipIcon: { fontSize: 11 },
 
-  gradeScroll: { maxHeight: 50, marginBottom: 10, marginHorizontal: -16, paddingHorizontal: 16 },
+  gradeScroll: { maxHeight: 60, marginBottom: 10, marginHorizontal: -16, paddingHorizontal: 16 },
   filterWrap: { flexDirection: 'row', gap: 3, paddingRight: 40 },
   gradeChip: {
     paddingHorizontal: 9, paddingVertical: 3,
@@ -480,6 +486,10 @@ const styles = StyleSheet.create({
   posBadgeSet: { backgroundColor: '#1F3A5F', borderColor: '#1F3A5F' },
   posBadgeText: { fontSize: 11, fontWeight: '700', color: '#7A8699' },
   posBadgeTextSet: { color: '#FFFFFF' },
+
+  busPlateRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  busPlateLabel: { fontSize: 12, fontWeight: '600', color: '#5A3A8A' },
+  busPlateText: { fontSize: 12, fontWeight: '700', color: '#5A3A8A', backgroundColor: '#F0E8FB', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4 },
 
   vehicleRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   colorSwatch: { width: 14, height: 14, borderRadius: 4, borderWidth: 1, borderColor: 'rgba(0,0,0,0.2)' },

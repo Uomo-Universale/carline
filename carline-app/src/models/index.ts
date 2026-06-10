@@ -92,6 +92,7 @@ export interface QueueEntry {
   queuePosition: number;
   group?: number;     // 1–5: holding-area group assigned by staff
   position?: number;  // 1–20: physical spot within the group
+  busPlate?: string;  // Bus license plate identifier
   alert?: string;     // e.g. "Approved pickup: Aunt"
 }
 

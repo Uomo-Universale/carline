@@ -38,7 +38,7 @@ export interface DataSource {
 
   // ── Pickup requests ───────────────────────────────────────
   createPickupRequest(params: CreatePickupRequestParams): Promise<PickupRequest>;
-  createBusRequest(studentIds: string[]): Promise<void>;
+  createBusRequest(studentIds: string[], busPlate?: string): Promise<void>;
   getActiveRequestsForGuardian(guardianId: string): Promise<PickupRequest[]>;
   cancelPickupRequest(requestId: string): Promise<void>;
 
