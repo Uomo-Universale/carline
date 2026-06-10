@@ -14,7 +14,7 @@ const GRADE_FILTERS = ['All', 'K', '1st', '2nd', '3rd', '4th', '5th'];
 
 export function StaffBusScreen() {
   const navigation = useNavigation<any>();
-  const { createBusRequest } = useStore();
+  const { createBusRequest, queue } = useStore();
   const [students, setStudents] = useState<Student[]>([]);
   const [search, setSearch] = useState('');
   const [gradeFilter, setGradeFilter] = useState('All');
@@ -37,13 +37,21 @@ export function StaffBusScreen() {
     return () => { mounted = false; };
   }, []);
 
+  // Filter out students already loaded on a bus
+  const busStudentIds = new Set(
+    queue
+      .filter(e => e.pickupType === 'bus' && e.status !== 'released')
+      .map(e => e.studentId)
+  );
+  const availableStudents = students.filter(s => !busStudentIds.has(s.id));
+
   const toggleStudent = (id: string) => {
     setSelectedIds(prev =>
       prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
     );
   };
 
-  const filtered = students
+  const filtered = availableStudents
     .filter(s => {
       if (gradeFilter === 'All') return true;
       const grade = s.grade ?? '';
