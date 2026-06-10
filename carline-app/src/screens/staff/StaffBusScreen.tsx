@@ -181,14 +181,14 @@ const styles = StyleSheet.create({
   searchIcon: { fontSize: 16 },
   searchInput: { flex: 1, paddingVertical: 10, fontSize: 15, color: '#15233A' },
 
-  filterScroll: { maxHeight: 42, marginBottom: 10, marginHorizontal: -16, paddingHorizontal: 16 },
-  filterWrap: { flexDirection: 'row', gap: 3, paddingRight: 24 },
+  filterScroll: { maxHeight: 56, marginBottom: 12, marginHorizontal: -16, paddingHorizontal: 16 },
+  filterWrap: { flexDirection: 'row', gap: 4, paddingRight: 24 },
   filterChip: {
-    paddingHorizontal: 9, paddingVertical: 3,
-    backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#D8C9A8', borderRadius: 16,
+    paddingHorizontal: 12, paddingVertical: 6,
+    backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#D8C9A8', borderRadius: 18,
   },
   filterChipActive: { backgroundColor: '#1F3A5F', borderColor: '#1F3A5F' },
-  filterText: { fontSize: 11, fontWeight: '600', color: '#3B4A66' },
+  filterText: { fontSize: 12, fontWeight: '600', color: '#3B4A66' },
   filterTextActive: { color: '#FFFFFF' },
 
   listContent: { paddingHorizontal: 16, paddingBottom: 100, gap: 0 },
