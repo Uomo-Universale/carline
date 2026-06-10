@@ -104,14 +104,14 @@ function StaffTabs() {
         options={{ tabBarIcon: ({ focused }) => <TabIcon label="Early" icon="🕐" focused={focused} /> }}
       />
       <Tab.Screen
-        name="Reports"
-        component={StaffReportingScreen}
-        options={{ tabBarIcon: ({ focused }) => <TabIcon label="Reports" icon="📊" focused={focused} /> }}
-      />
-      <Tab.Screen
         name="Bus"
         component={StaffBusScreen}
         options={{ tabBarIcon: ({ focused }) => <TabIcon label="Bus" icon="🚌" focused={focused} /> }}
+      />
+      <Tab.Screen
+        name="Reports"
+        component={StaffReportingScreen}
+        options={{ tabBarIcon: ({ focused }) => <TabIcon label="Reports" icon="📊" focused={focused} /> }}
       />
     </Tab.Navigator>
   );
