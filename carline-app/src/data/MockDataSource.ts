@@ -219,11 +219,12 @@ export class MockDataSource implements DataSource {
       arrived: 'called',
       called: 'released',
     };
+    const now = new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
     _queueEntries = _queueEntries.map(e => {
       if (e.requestId !== requestId) return e;
       const next = NEXT[e.status];
       if (!next) return e;
-      return { ...e, status: next, queuePosition: next === 'released' ? 0 : e.queuePosition };
+      return { ...e, status: next, queuePosition: next === 'released' ? 0 : e.queuePosition, releasedAt: next === 'released' ? now : e.releasedAt };
     });
     notifyQueueListeners();
 
@@ -246,8 +247,11 @@ export class MockDataSource implements DataSource {
   }
 
   async setRequestStatus(requestId: string, status: PickupStatus): Promise<PickupRequest> {
+    const now = new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
     _queueEntries = _queueEntries.map(e =>
-      e.requestId === requestId ? { ...e, status, queuePosition: status === 'released' ? 0 : e.queuePosition } : e
+      e.requestId === requestId
+        ? { ...e, status, queuePosition: status === 'released' ? 0 : e.queuePosition, releasedAt: status === 'released' ? now : e.releasedAt }
+        : e
     );
     notifyQueueListeners();
     const newEntry = _queueEntries.find(e => e.requestId === requestId);

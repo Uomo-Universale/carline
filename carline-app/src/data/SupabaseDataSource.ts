@@ -55,6 +55,7 @@ function mapQueueEntry(r: any): QueueEntry {
     pickupType:    r.pickup_type as PickupType,
     status:        r.status as PickupStatus,
     arrivedAt:     r.arrived_at,
+    releasedAt:    r.released_at  ?? undefined,
     queuePosition: r.queue_position,
     group:         r.group_num    ?? undefined,
     position:      r.position_num ?? undefined,
@@ -280,12 +281,16 @@ export class SupabaseDataSource implements DataSource {
     const NEXT: Record<string, PickupStatus> = { arrived: 'called', called: 'released' };
     const next = NEXT[current];
     if (!next) throw new Error(`Cannot advance from "${current}"`);
-    await supabase.from('queue_entries').update({ status: next }).eq('request_id', requestId);
+    const update: any = { status: next };
+    if (next === 'released') update.released_at = now12h();
+    await supabase.from('queue_entries').update(update).eq('request_id', requestId);
     return { id: requestId, guardianId: '', studentIds: [], type: 'carline', status: next, requestedAt: '' };
   }
 
   async setRequestStatus(requestId: string, status: PickupStatus): Promise<PickupRequest> {
-    await supabase.from('queue_entries').update({ status }).eq('request_id', requestId);
+    const update: any = { status };
+    if (status === 'released') update.released_at = now12h();
+    await supabase.from('queue_entries').update(update).eq('request_id', requestId);
     return { id: requestId, guardianId: '', studentIds: [], type: 'carline', status, requestedAt: '' };
   }
 

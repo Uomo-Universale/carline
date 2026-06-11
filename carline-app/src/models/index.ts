@@ -89,6 +89,7 @@ export interface QueueEntry {
   pickupType?: PickupType;
   status: PickupStatus;
   arrivedAt: string;
+  releasedAt?: string;     // Recorded when status transitions to 'released'
   queuePosition: number;
   group?: number;          // 1–5: holding-area group assigned by staff
   position?: number;       // 1–20: physical spot within the group
