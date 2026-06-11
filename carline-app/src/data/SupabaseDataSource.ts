@@ -56,10 +56,12 @@ function mapQueueEntry(r: any): QueueEntry {
     status:        r.status as PickupStatus,
     arrivedAt:     r.arrived_at,
     queuePosition: r.queue_position,
-    group:         r.group_num   ?? undefined,
+    group:         r.group_num    ?? undefined,
     position:      r.position_num ?? undefined,
-    busPlate:      r.bus_plate   ?? undefined,
-    alert:         r.alert       ?? undefined,
+    busPlate:      r.bus_plate    ?? undefined,
+    alert:         r.alert        ?? undefined,
+    pickupPerson:  r.pickup_person ?? undefined,
+    manualPlate:   r.manual_plate  ?? undefined,
   };
 }
 
@@ -111,6 +113,11 @@ export class SupabaseDataSource implements DataSource {
     const ids = await this._studentIdsFor(guardianId);
     if (!ids.length) return [];
     const { data } = await supabase.from('students').select('*').in('id', ids);
+    return (data ?? []).map(mapStudent);
+  }
+
+  async getAllStudents(): Promise<Student[]> {
+    const { data } = await supabase.from('students').select('*').order('last_name');
     return (data ?? []).map(mapStudent);
   }
 
@@ -178,6 +185,8 @@ export class SupabaseDataSource implements DataSource {
       status:        'arrived',
       arrived_at:    arrivedAt,
       queue_position: 0,
+      pickup_person: params.pickupPersonName ?? null,
+      manual_plate:  params.manualPlate ?? null,
     }));
 
     const { error } = await supabase.from('queue_entries').insert(rows);

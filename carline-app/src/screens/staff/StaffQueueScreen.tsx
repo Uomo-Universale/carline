@@ -3,6 +3,7 @@ import {
   View, Text, TouchableOpacity, FlatList, TextInput,
   StyleSheet, SafeAreaView, StatusBar, Modal, Pressable,
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { LicensePlate } from '../../components/ui/LicensePlate';
 import { dataSource } from '../../data/provider';
 import { useStore } from '../../store';
@@ -48,6 +49,7 @@ const GROUPS = [1, 2, 3, 4, 5];
 const POSITIONS = Array.from({ length: 20 }, (_, i) => i + 1);
 
 export function StaffQueueScreen() {
+  const navigation = useNavigation<any>();
   const { queue, advanceQueueEntry, setQueueEntryStatus, setGroupAndPosition, subscribeToQueue } = useStore();
   const [rows, setRows] = useState<QueueRow[]>([]);
   const [search, setSearch] = useState('');
@@ -172,16 +174,27 @@ export function StaffQueueScreen() {
                 <Text style={styles.rowSub}>
                   {r.student?.grade} · {r.student?.homeroom} · {r.student?.teacherName}
                 </Text>
-                {r.guardian && (
+                {r.pickupPerson ? (
+                  <View style={styles.manualPickupBadge}>
+                    <Text style={styles.manualPickupIcon}>👤</Text>
+                    <Text style={styles.manualPickupText}>{r.pickupPerson}</Text>
+                    <View style={styles.staffInitiatedDot} />
+                    <Text style={styles.staffInitiatedLabel}>Staff</Text>
+                  </View>
+                ) : r.guardian ? (
                   <Text style={styles.guardianName}>
                     {r.guardian.firstName} {r.guardian.lastName}
                   </Text>
-                )}
+                ) : null}
               </View>
 
               <View style={styles.rowRight}>
                 {r.vehicle ? (
                   <LicensePlate plate={r.vehicle.plate} state={r.vehicle.state} size="sm" />
+                ) : r.manualPlate ? (
+                  <View style={styles.manualPlateBadge}>
+                    <Text style={styles.manualPlateText}>{r.manualPlate}</Text>
+                  </View>
                 ) : null}
                 <Text style={styles.arrivedAt}>{r.arrivedAt}</Text>
                 {/* Group/Position badge */}
@@ -247,6 +260,12 @@ export function StaffQueueScreen() {
         <View style={styles.countBadge}>
           <Text style={styles.countText}>{sortedActive.length}</Text>
         </View>
+        <TouchableOpacity
+          style={styles.manualBtn}
+          onPress={() => navigation.navigate('StaffManualPickup')}
+        >
+          <Text style={styles.manualBtnText}>+ Manual</Text>
+        </TouchableOpacity>
       </View>
 
       {/* Search */}
@@ -422,6 +441,11 @@ const styles = StyleSheet.create({
   headerTitle: { fontSize: 24, fontWeight: '700', color: '#15233A', letterSpacing: -0.4, flex: 1 },
   countBadge: { backgroundColor: '#E8A33D', borderRadius: 12, paddingHorizontal: 10, paddingVertical: 3 },
   countText: { fontSize: 14, fontWeight: '700', color: '#FFFFFF' },
+  manualBtn: {
+    backgroundColor: '#15233A', borderRadius: 10,
+    paddingHorizontal: 12, paddingVertical: 7,
+  },
+  manualBtnText: { fontSize: 13, fontWeight: '700', color: '#FFFFFF' },
 
   searchWrap: {
     flexDirection: 'row', alignItems: 'center', gap: 8,
@@ -478,6 +502,17 @@ const styles = StyleSheet.create({
   typeBadgeText: { fontSize: 11, fontWeight: '700', color: '#2A6FA3' },
   rowSub: { fontSize: 12, color: '#7A8699' },
   guardianName: { fontSize: 13, color: '#3B4A66', fontWeight: '500' },
+  manualPickupBadge: { flexDirection: 'row', alignItems: 'center', gap: 4, flexWrap: 'wrap' },
+  manualPickupIcon: { fontSize: 12 },
+  manualPickupText: { fontSize: 13, fontWeight: '600', color: '#3B4A66' },
+  staffInitiatedDot: { width: 4, height: 4, borderRadius: 2, backgroundColor: '#C97A1F' },
+  staffInitiatedLabel: { fontSize: 11, fontWeight: '700', color: '#C97A1F' },
+  manualPlateBadge: {
+    backgroundColor: '#ECE0C8', borderRadius: 6,
+    paddingHorizontal: 8, paddingVertical: 3,
+    borderWidth: 1, borderColor: '#D8C9A8',
+  },
+  manualPlateText: { fontSize: 12, fontWeight: '700', color: '#3B4A66', letterSpacing: 0.5 },
   arrivedAt: { fontSize: 12, color: '#7A8699' },
 
   posBadge: {

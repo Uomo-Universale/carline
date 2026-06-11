@@ -15,7 +15,8 @@ import { EarlyPickupScreen }        from './src/screens/parent/EarlyPickupScreen
 import { StaffQueueScreen }         from './src/screens/staff/StaffQueueScreen';
 import { StaffApprovalsScreen }     from './src/screens/staff/StaffApprovalsScreen';
 import { StaffReportingScreen }     from './src/screens/staff/StaffReportingScreen';
-import { StaffBusScreen }           from './src/screens/staff/StaffBusScreen';
+import { StaffBusScreen }            from './src/screens/staff/StaffBusScreen';
+import { StaffManualPickupScreen }   from './src/screens/staff/StaffManualPickupScreen';
 import { registerForPushNotifications } from './src/notifications';
 
 const Stack = createNativeStackNavigator();
@@ -184,7 +185,14 @@ function RootNavigator({ role }: { role: Role }) {
           />
         </>
       ) : (
-        <Stack.Screen name="StaffRoot" component={StaffTabs} />
+        <>
+          <Stack.Screen name="StaffRoot" component={StaffTabs} />
+          <Stack.Screen
+            name="StaffManualPickup"
+            component={StaffManualPickupScreen}
+            options={{ presentation: 'modal', headerShown: false }}
+          />
+        </>
       )}
     </Stack.Navigator>
   );

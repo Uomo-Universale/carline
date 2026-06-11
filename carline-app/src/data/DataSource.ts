@@ -16,6 +16,8 @@ export interface CreatePickupRequestParams {
   earlyPickupTime?: string;
   earlyPickupReason?: EarlyPickupReason;
   earlyPickupNote?: string;
+  pickupPersonName?: string;  // Set for staff-initiated manual pickups
+  manualPlate?: string;       // Plate entered by staff for manual pickups
 }
 
 export interface DataSource {
@@ -24,6 +26,7 @@ export interface DataSource {
   getGuardianById(id: string): Promise<Guardian | null>;
 
   // ── Students ─────────────────────────────────────────────
+  getAllStudents(): Promise<Student[]>;
   getStudentsForGuardian(guardianId: string): Promise<Student[]>;
   getStudentById(id: string): Promise<Student | null>;
 

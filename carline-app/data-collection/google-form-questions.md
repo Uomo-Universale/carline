@@ -105,12 +105,22 @@ Vehicle 3 (if applicable)
 
 ── SECTION 5: Authorized Pickups ───────────────────────────
 (People OTHER than the parents above who are approved to pick up your child)
+Leave blank if no additional authorized pickups.
 
 Authorized Person 1
 [Short answer] Full Name
   (Example: Rachel Adler)
 [Short answer] Relationship to Child
   (Example: Grandmother, Aunt, Babysitter, Neighbor)
+[Short answer] Email Address
+  (Leave blank if they do not need their own CarLine app login)
+  NOTE: If this person picks up regularly or on a set schedule, they
+  should have their own login so they can check in and track their
+  place in the queue themselves. Staff can always look up a student
+  and initiate pickup on behalf of someone without a login.
+[Multiple choice] How often does this person pick up?
+  - Regularly / on a set schedule (give them a login)
+  - Occasionally / in emergencies only (no login needed)
 [Checkboxes]  Approved to pick up: (select all that apply)
   - Child 1
   - Child 2
@@ -119,6 +129,11 @@ Authorized Person 1
 Authorized Person 2
 [Short answer] Full Name
 [Short answer] Relationship to Child
+[Short answer] Email Address
+  (Leave blank if login not needed)
+[Multiple choice] How often does this person pick up?
+  - Regularly / on a set schedule (give them a login)
+  - Occasionally / in emergencies only (no login needed)
 [Checkboxes]  Approved to pick up:
   - Child 1
   - Child 2
@@ -127,6 +142,11 @@ Authorized Person 2
 Authorized Person 3
 [Short answer] Full Name
 [Short answer] Relationship to Child
+[Short answer] Email Address
+  (Leave blank if login not needed)
+[Multiple choice] How often does this person pick up?
+  - Regularly / on a set schedule (give them a login)
+  - Occasionally / in emergencies only (no login needed)
 [Checkboxes]  Approved to pick up:
   - Child 1
   - Child 2

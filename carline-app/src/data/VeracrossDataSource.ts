@@ -71,6 +71,11 @@ export class VeracrossDataSource implements DataSource {
     throw new Error('Not implemented');
   }
 
+  async getAllStudents(): Promise<Student[]> {
+    // TODO: GET /api/v3/{school}/students — full roster
+    throw new Error('Not implemented');
+  }
+
   async getStudentsForGuardian(guardianId: string): Promise<Student[]> {
     // TODO: GET /api/v3/{school}/students?household_fk={guardianId}
     //   Map response.data[] → Student objects
@@ -125,6 +130,11 @@ export class VeracrossDataSource implements DataSource {
     throw new Error('Not implemented');
   }
 
+  async createBusRequest(_studentIds: string[], _busPlate?: string): Promise<void> {
+    // TODO: POST to CarLine backend /queue/bus
+    throw new Error('Not implemented');
+  }
+
   async getDismissalQueue(): Promise<QueueEntry[]> {
     // TODO: GET CarLine backend /queue/today (WebSocket stream preferred for
     //   real-time — see subscribeToQueueChanges)
@@ -133,6 +143,16 @@ export class VeracrossDataSource implements DataSource {
 
   async advanceRequestStatus(_requestId: string): Promise<PickupRequest> {
     // TODO: POST CarLine backend /requests/{requestId}/advance
+    throw new Error('Not implemented');
+  }
+
+  async setRequestStatus(_requestId: string, _status: PickupStatus): Promise<PickupRequest> {
+    // TODO: PATCH CarLine backend /requests/{requestId} { status }
+    throw new Error('Not implemented');
+  }
+
+  async setGroupAndPosition(_requestId: string, _studentId: string, _group: number, _position: number): Promise<void> {
+    // TODO: PATCH CarLine backend /queue/{requestId}/position { group, position }
     throw new Error('Not implemented');
   }
 

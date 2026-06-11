@@ -4,7 +4,7 @@
 
 import type {
   Student, Guardian, Vehicle, PickupRequest, AuthorizedPickup,
-  EarlyPickupApproval, QueueEntry, Notification, PickupStatus,
+  EarlyPickupApproval, QueueEntry, Notification, PickupStatus, PickupType,
 } from '../models';
 import type { DataSource, CreatePickupRequestParams } from './DataSource';
 
@@ -110,6 +110,10 @@ export class MockDataSource implements DataSource {
     return STUDENTS.filter(s => guardian.studentIds.includes(s.id));
   }
 
+  async getAllStudents() {
+    return [...STUDENTS];
+  }
+
   async getStudentById(id: string) {
     return STUDENTS.find(s => s.id === id) ?? null;
   }
@@ -147,7 +151,7 @@ export class MockDataSource implements DataSource {
       studentIds: params.studentIds,
       vehicleId: params.vehicleId,
       type: params.type,
-      status: 'requested',
+      status: 'arrived' as PickupStatus,
       requestedAt: now,
       earlyPickupTime: params.earlyPickupTime,
       earlyPickupReason: params.earlyPickupReason,
@@ -166,6 +170,8 @@ export class MockDataSource implements DataSource {
         status: 'arrived' as PickupStatus,
         arrivedAt: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }),
         queuePosition: _queueEntries.filter(q => q.status !== 'released').length + 1,
+        pickupPerson: params.pickupPersonName,
+        manualPlate: params.manualPlate,
       }));
       newEntries.forEach(e => { _queueEntries.push(e); });
       notifyQueueListeners();
@@ -194,7 +200,7 @@ export class MockDataSource implements DataSource {
       studentId,
       guardianId: '',
       vehicleId: undefined,
-      pickupType: 'bus' as PickupStatus,
+      pickupType: 'bus' as PickupType,
       status: 'arrived' as PickupStatus,
       arrivedAt: now,
       queuePosition: 0,
