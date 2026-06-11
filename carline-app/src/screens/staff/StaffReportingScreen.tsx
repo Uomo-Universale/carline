@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   View, Text, TouchableOpacity,
-  StyleSheet, SafeAreaView, StatusBar, ScrollView, FlatList,
+  StyleSheet, SafeAreaView, StatusBar, FlatList,
 } from 'react-native';
 import { useStore } from '../../store';
 import { dataSource } from '../../data/provider';
@@ -12,6 +12,25 @@ type AuditRow = QueueEntry & {
   guardian?: Guardian | null;
   vehicle?: Vehicle | null;
 };
+
+// Parse "3:22 PM" → minutes since midnight
+function parseTime(t: string): number {
+  const m = t.match(/(\d+):(\d+)\s*(AM|PM)/i);
+  if (!m) return 0;
+  let h = parseInt(m[1]);
+  const min = parseInt(m[2]);
+  const ampm = m[3].toUpperCase();
+  if (ampm === 'PM' && h !== 12) h += 12;
+  if (ampm === 'AM' && h === 12) h = 0;
+  return h * 60 + min;
+}
+
+function calcWait(arrivedAt: string, releasedAt: string): string {
+  const diff = parseTime(releasedAt) - parseTime(arrivedAt);
+  if (diff <= 0) return '';
+  if (diff < 60) return `${diff}m wait`;
+  return `${Math.floor(diff / 60)}h ${diff % 60}m wait`;
+}
 
 const TYPE_FILTERS: { key: string; label: string; icon: string; type?: PickupType }[] = [
   { key: 'All',   label: 'All',     icon: '📋' },
@@ -147,8 +166,11 @@ export function StaffReportingScreen() {
         <View style={styles.auditRight}>
           <Text style={styles.auditReleasedTime}>{r.releasedAt ?? r.arrivedAt}</Text>
           <Text style={styles.auditTimeLabel}>released</Text>
-          {r.releasedAt && (
-            <Text style={styles.auditArrivedTime}>arr. {r.arrivedAt}</Text>
+          <Text style={styles.auditArrivedTime}>arr. {r.arrivedAt}</Text>
+          {r.releasedAt && calcWait(r.arrivedAt, r.releasedAt) !== '' && (
+            <View style={styles.waitBadge}>
+              <Text style={styles.waitText}>{calcWait(r.arrivedAt, r.releasedAt)}</Text>
+            </View>
           )}
         </View>
       </View>
@@ -321,10 +343,15 @@ const styles = StyleSheet.create({
   },
   plateText: { fontSize: 11, fontWeight: '700', color: '#3B4A66', letterSpacing: 0.5 },
 
-  auditRight: { alignItems: 'flex-end', gap: 1, minWidth: 62 },
+  auditRight: { alignItems: 'flex-end', gap: 1, minWidth: 68 },
   auditReleasedTime: { fontSize: 14, fontWeight: '700', color: '#2F6B5A' },
   auditTimeLabel: { fontSize: 9, color: '#7A8699', textTransform: 'uppercase', letterSpacing: 0.4, fontWeight: '600' },
   auditArrivedTime: { fontSize: 10, color: '#B0BAC9', marginTop: 2 },
+  waitBadge: {
+    marginTop: 4, backgroundColor: '#E5EAF1',
+    borderRadius: 6, paddingHorizontal: 5, paddingVertical: 2,
+  },
+  waitText: { fontSize: 10, fontWeight: '700', color: '#2A6FA3' },
 
   empty: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: 60, gap: 8 },
   emptyIcon: { fontSize: 40 },
