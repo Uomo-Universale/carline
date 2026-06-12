@@ -15,8 +15,10 @@ import { EarlyPickupScreen }        from './src/screens/parent/EarlyPickupScreen
 import { StaffQueueScreen }         from './src/screens/staff/StaffQueueScreen';
 import { StaffApprovalsScreen }     from './src/screens/staff/StaffApprovalsScreen';
 import { StaffReportingScreen }     from './src/screens/staff/StaffReportingScreen';
-import { StaffBusScreen }            from './src/screens/staff/StaffBusScreen';
-import { StaffManualPickupScreen }   from './src/screens/staff/StaffManualPickupScreen';
+import { StaffBusScreen }           from './src/screens/staff/StaffBusScreen';
+import { StaffManualPickupScreen }  from './src/screens/staff/StaffManualPickupScreen';
+import { LoginModal }               from './src/screens/auth/LoginModal';
+import { useAuthStore }             from './src/store/authStore';
 import { registerForPushNotifications } from './src/notifications';
 
 const Stack = createNativeStackNavigator();
@@ -198,14 +200,77 @@ function RootNavigator({ role }: { role: Role }) {
   );
 }
 
+// ── Auth bar ──────────────────────────────────────────────────────────────────
+
+function AuthBar({ onSignInPress }: { onSignInPress: () => void }) {
+  const { user, profile, signOut } = useAuthStore();
+
+  if (user && profile) {
+    const roleLabel = profile.role === 'staff' ? '👩‍💼 Staff' : '👨‍👩‍👧 Parent';
+    return (
+      <View style={authStyles.bar}>
+        <View style={authStyles.userInfo}>
+          <Text style={authStyles.rolePill}>{roleLabel}</Text>
+          <Text style={authStyles.email} numberOfLines={1}>{user.email}</Text>
+        </View>
+        <TouchableOpacity onPress={signOut} style={authStyles.signOutBtn}>
+          <Text style={authStyles.signOutText}>Sign out</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
+  return (
+    <View style={authStyles.bar}>
+      <Text style={authStyles.demoLabel}>Demo mode</Text>
+      <TouchableOpacity onPress={onSignInPress} style={authStyles.signInBtn}>
+        <Text style={authStyles.signInText}>Sign in</Text>
+      </TouchableOpacity>
+    </View>
+  );
+}
+
+const authStyles = StyleSheet.create({
+  bar: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    paddingHorizontal: 16, paddingVertical: 6,
+    borderBottomWidth: 1, borderBottomColor: '#ECE0C8',
+    backgroundColor: '#F7F3EB',
+  },
+  userInfo: { flexDirection: 'row', alignItems: 'center', gap: 8, flex: 1 },
+  rolePill: {
+    fontSize: 11, fontWeight: '700', color: '#15233A',
+    backgroundColor: '#ECE0C8', borderRadius: 8,
+    paddingHorizontal: 7, paddingVertical: 2,
+  },
+  email: { fontSize: 12, color: '#7A8699', flex: 1 },
+  signOutBtn: { paddingHorizontal: 10, paddingVertical: 4 },
+  signOutText: { fontSize: 12, fontWeight: '600', color: '#A83228' },
+  demoLabel: { fontSize: 12, color: '#B0BAC9', fontWeight: '500' },
+  signInBtn: {
+    backgroundColor: '#15233A', borderRadius: 8,
+    paddingHorizontal: 12, paddingVertical: 5,
+  },
+  signInText: { fontSize: 12, fontWeight: '700', color: '#FFFFFF' },
+});
+
 // ── App ───────────────────────────────────────────────────────────────────────
 
 export default function App() {
-  const [role, setRole] = useState<Role>('parent');
+  const [role, setRole]         = useState<Role>('parent');
+  const [showLogin, setShowLogin] = useState(false);
+  const { profile, initialize } = useAuthStore();
 
   useEffect(() => {
+    initialize();
     registerForPushNotifications().catch(() => {});
   }, []);
+
+  // When a real user logs in, auto-switch to their role
+  useEffect(() => {
+    if (profile?.role === 'staff')    setRole('staff');
+    if (profile?.role === 'guardian') setRole('parent');
+  }, [profile]);
 
   return (
     <SafeAreaProvider>
@@ -213,11 +278,13 @@ export default function App() {
       <NavigationContainer>
         <View style={{ flex: 1, backgroundColor: '#FBF5EA' }}>
           <RoleSwitcher role={role} onChange={setRole} />
+          <AuthBar onSignInPress={() => setShowLogin(true)} />
           <View style={{ flex: 1 }}>
             <RootNavigator role={role} />
           </View>
         </View>
       </NavigationContainer>
+      <LoginModal visible={showLogin} onClose={() => setShowLogin(false)} />
     </SafeAreaProvider>
   );
 }

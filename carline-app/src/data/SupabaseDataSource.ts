@@ -90,12 +90,18 @@ function now12h() {
 
 export class SupabaseDataSource implements DataSource {
 
-  // Hardcoded until auth is wired up in Phase 2
+  // Fallback used only when no auth session exists (demo / dev mode)
   private _currentGuardianId = 'g1';
 
   // ── Guardian / auth ──────────────────────────────────────────────────────
 
   async getCurrentGuardian(): Promise<Guardian> {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      const { data: profile } = await supabase
+        .from('profiles').select('guardian_id').eq('id', user.id).single();
+      if (profile?.guardian_id) this._currentGuardianId = profile.guardian_id;
+    }
     const g = await this.getGuardianById(this._currentGuardianId);
     if (!g) throw new Error('Current guardian not found');
     return g;
